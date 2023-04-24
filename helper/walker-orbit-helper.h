@@ -19,7 +19,8 @@
 #include <ns3/satellite-sgp4-mobility-model.h>
 
 
-namespace ns3 {
+namespace ns3 
+{
 
 
 class WalkerOrbitHelper : public Object
@@ -65,12 +66,22 @@ class WalkerOrbitHelper : public Object
 
     int getSatelliteCount (void) const;
 
+
+    /**
+     * @brief Get the Satellite Object
+     * 
+     * @param satIndex  Satellite Index (starting at 0)
+     * @return Ptr<MobilityModel> 
+     */
+    Ptr<MobilityModel> getSatellite(unsigned int satIndex) const;
+
 private:
 
     double m_inclination;
     int m_numSats;
     double m_phase;
     double m_raan;
+    double m_meanMotion;
 
     std::vector<Ptr<SatSGP4MobilityModel>> m_sats;
     NodeContainer m_nodes;

@@ -5,7 +5,8 @@ def build(bld):
     obj.source = [
         'model/pseudo-tle.cc',
         'helper/walker-orbit-helper.cc',
-        'helper/walker-constellation-helper.cc'
+        'helper/walker-constellation-helper.cc',
+        'helper/groundstation-helper.cc'
         ]
 
     module_test = bld.create_ns3_module_test_library('mlxsat')
@@ -17,7 +18,8 @@ def build(bld):
     headers.source = [
         'model/pseudo-tle.h',
         'helper/walker-orbit-helper.h',
-        'helper/walker-constellation-helper.h'
+        'helper/walker-constellation-helper.h',
+        'helper/groundstation-helper.h'
         ]
         
     if (bld.env['ENABLE_EXAMPLES']):

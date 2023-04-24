@@ -44,6 +44,11 @@ TypeId WalkerOrbitHelper::GetTypeId (void)
                       DoubleValue(0.0),
                       MakeDoubleAccessor(&WalkerOrbitHelper::m_raan),
                       MakeDoubleChecker<double>(0.0, 360.0))
+        .AddAttribute("MeanMotion",
+                      "Satellite Mean Motion",
+                      DoubleValue(13.0),
+                      MakeDoubleAccessor(&WalkerOrbitHelper::m_meanMotion),
+                      MakeDoubleChecker<double>(0.0, 17.0))
     ;
 
     return tid;
@@ -81,7 +86,8 @@ void WalkerOrbitHelper::Initialize (unsigned long satNo_seed)
             "Inclination", DoubleValue(m_inclination),
             "SatNo", IntegerValue(n),
             "MeanAnomaly", DoubleValue(phase),
-            "AscendingNode", DoubleValue(m_raan)
+            "AscendingNode", DoubleValue(m_raan),
+            "MeanMotion", DoubleValue(m_meanMotion)
         );
 
         m_satFactory.SetTypeId("ns3::SatSGP4MobilityModel");
@@ -128,5 +134,13 @@ int WalkerOrbitHelper::getSatelliteCount (void) const
     return m_numSats;
 }
 
+
+Ptr<MobilityModel> WalkerOrbitHelper::getSatellite (unsigned int satIndex ) const 
+{
+    if (satIndex > m_sats.size())
+        return nullptr;
+        
+    return m_sats.at(satIndex);
+}
 
 }   // namespace ns3

@@ -5,6 +5,8 @@
 #include <ns3/double.h>
 #include <ns3/integer.h>
 
+#include <math.h>
+
 #include "walker-constellation-helper.h"
 
 NS_LOG_COMPONENT_DEFINE("WalkerConstellationHelper");
@@ -13,6 +15,13 @@ namespace ns3
 {
 
 NS_OBJECT_ENSURE_REGISTERED(WalkerConstellationHelper);
+
+
+const double WalkerConstellationHelper::productGM = 3.9860e14;
+const double WalkerConstellationHelper::secsPerDay =86400.0;
+const double WalkerConstellationHelper::twoPi = 6.2831853072;
+const double WalkerConstellationHelper::meanEarthRadius = 6371.0;
+
 
 TypeId WalkerConstellationHelper::GetTypeId (void) 
 {
@@ -44,6 +53,11 @@ TypeId WalkerConstellationHelper::GetTypeId (void)
                       DoubleValue(0.0),
                       MakeDoubleAccessor(&WalkerConstellationHelper::m_raanShift),
                       MakeDoubleChecker<double>(0.0, 360.0))
+        .AddAttribute("Altitude",
+                      "Orbit Altitude in km",
+                      DoubleValue(860.0),
+                      MakeDoubleAccessor(&WalkerConstellationHelper::m_altitude),
+                      MakeDoubleChecker<double>(100.0))
     ;
     return tid;
 }
@@ -74,7 +88,8 @@ void WalkerConstellationHelper::Initialize (void)
         Ptr<WalkerOrbitHelper> orb = CreateObjectWithAttributes<WalkerOrbitHelper> (
             "Inclination", DoubleValue(m_inclination),
             "NumOfSats", IntegerValue(m_numSats),
-            "AscendingNode", DoubleValue(raan)
+            "AscendingNode", DoubleValue(raan),
+            "MeanMotion", DoubleValue(getMeanMotion())
         );
 
         orb->Initialize(N);
@@ -112,10 +127,40 @@ void WalkerConstellationHelper::LogInitialPositions (const std::string prefix, c
 
 }
 
-
 long WalkerConstellationHelper::getSatelliteCount (void)
 {
     return m_totSats;
 }
+
+double WalkerConstellationHelper::getGeocentricRadius (void) const
+{
+    return (meanEarthRadius + m_altitude) * 1000.0;
+}
+
+double WalkerConstellationHelper::getOrbitalPeriod (void) const
+{
+    // T = 2 π √ ( r^3 / (G M ) )
+    return twoPi * sqrt( pow(getGeocentricRadius(), 3) / productGM );
+}
+
+double WalkerConstellationHelper::getMeanMotion (void) const
+{
+    // n = 86400 / T
+    return secsPerDay / getOrbitalPeriod();
+}
+
+Ptr<MobilityModel> WalkerConstellationHelper::getSatellite (unsigned long satIndex) const
+{
+    if (satIndex > m_totSats)
+        return nullptr;
+
+    int orb =(int) (satIndex / m_numSats);
+    unsigned int sat =(unsigned int) (satIndex - (m_numSats * orb));
+
+    //std::cout << "Orb: " << orb << " Sat: " << sat << std::endl;
+
+    return m_orbits.at(orb)->getSatellite(sat);
+}
+
 
 };  // namsepace ns3
