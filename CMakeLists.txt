@@ -1,9 +1,17 @@
 set(source_files
-    helper/sat-orbit-helper.cc
+    model/pseudo-tle.cc
+    helper/groundstation-helper.cc
+    helper/gsl-channel-helper.cc
+    helper/walker-constellation-helper.cc
+    helper/walker-orbit-helper.cc
 )
 
 set(header_files
-    helper/sat-orbit-helper.h
+    model/pseudo-tle.h
+    helper/groundstation-helper.h
+    helper/gsl-channel-helper.h
+    helper/walker-constellation-helper.h
+    helper/walker-orbit-helper.h
 )
 
 build_lib(

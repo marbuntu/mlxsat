@@ -4,8 +4,8 @@
 #include <ns3/log.h>
 #include <ns3/names.h>
 #include <ns3/double.h>
+#include <ns3/integer.h>
 #include <ns3/type-id.h>
-#include <ns3/satellite-module.h>
 
 #include "walker-orbit-helper.h"
 #include "ns3/pseudo-tle.h"
