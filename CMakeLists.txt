@@ -1,5 +1,6 @@
 set(source_files
     model/pseudo-tle.cc
+    model/mega-const-static-channel.cc
     helper/groundstation-helper.cc
     helper/gsl-channel-helper.cc
     helper/walker-constellation-helper.cc
@@ -8,6 +9,7 @@ set(source_files
 
 set(header_files
     model/pseudo-tle.h
+    model/mega-const-static-channel.h
     helper/groundstation-helper.h
     helper/gsl-channel-helper.h
     helper/walker-constellation-helper.h
