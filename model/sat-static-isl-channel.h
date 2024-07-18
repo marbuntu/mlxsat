@@ -3,7 +3,7 @@
 #include <ns3/channel.h>
 #include <ns3/object-base.h>
 
-#include <ns3/simple-net-device.h>
+#include "sat-isl-net-device.h"
 
 
 namespace ns3
@@ -24,7 +24,7 @@ public:
     void Send(Ptr<Packet> pck, uint16_t protocol, Mac48Address dst, Mac48Address src, Ptr<NetDevice> sender);
 
 
-    virtual void Add(Ptr<NetDevice> device);
+    virtual void Add(Ptr<SatelliteISLNetDevice> device);
 
 
     virtual std::size_t GetNDevices() const;
@@ -36,7 +36,7 @@ public:
 private:
 
     //std::vector<Ptr<SimpleNetDevice>> m_devices;
-    std::vector<Ptr<NetDevice>> m_devices;
+    std::vector<Ptr<SatelliteISLNetDevice>> m_devices;
     double m_bandwidth;
 
 };

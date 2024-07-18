@@ -2,8 +2,11 @@
 
 
 #include "sat-static-isl-channel.h"
+#include "sat-isl-net-device.h"
 
-#include <ns3/double.h>
+#include "ns3/double.h"
+#include "ns3/simulator.h"
+#include "ns3/node.h"
 
 
 namespace ns3 
@@ -15,7 +18,7 @@ NS_OBJECT_ENSURE_REGISTERED(SatelliteStaticISLChannel);
 
     TypeId SatelliteStaticISLChannel::GetTypeId(void)
     {
-        static TypeId tid = TypeId("ns3::MegaConstellationStaticChannel")
+        static TypeId tid = TypeId("ns3::SatelliteStaticISLChannel")
             .SetParent<Channel>()
             .SetGroupName("Network")
             .AddConstructor<SatelliteStaticISLChannel>()
@@ -34,16 +37,28 @@ NS_OBJECT_ENSURE_REGISTERED(SatelliteStaticISLChannel);
 
     void SatelliteStaticISLChannel::Send(Ptr<Packet> pck, uint16_t protocol, Mac48Address dst, Mac48Address src, Ptr<NetDevice> sender)
     {
-        for (const auto &dev : m_devices)
+        NS_LOG_FUNCTION(this << pck << protocol << dst << src << sender);
+
+        for (const Ptr<SatelliteISLNetDevice> &dev : m_devices)
         {
             if (dev == sender) continue;
 
+            Simulator::ScheduleWithContext(
+                dev->GetNode()->GetId(),
+                Time("100ms"),
+                &SatelliteISLNetDevice::Receive,
+                dev,
+                pck->Copy(),
+                protocol,
+                dst,
+                src
+            );
             // dev->Receive(pck, protocol, dst, scr);
         }
     }
 
 
-    void SatelliteStaticISLChannel::Add(Ptr<NetDevice> device)
+    void SatelliteStaticISLChannel::Add(Ptr<SatelliteISLNetDevice> device)
     {
         m_devices.push_back(device);
     }
