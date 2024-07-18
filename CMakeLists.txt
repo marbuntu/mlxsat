@@ -7,6 +7,7 @@ set(source_files
     helper/gsl-channel-helper.cc
     helper/walker-constellation-helper.cc
     helper/walker-orbit-helper.cc
+    helper/sat-isl-helper.cc
 )
 
 set(header_files
@@ -18,6 +19,7 @@ set(header_files
     helper/gsl-channel-helper.h
     helper/walker-constellation-helper.h
     helper/walker-orbit-helper.h
+    helper/sat-isl-helper.h
 )
 
 build_lib(
