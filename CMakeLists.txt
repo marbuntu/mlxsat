@@ -3,6 +3,7 @@ set(source_files
     model/sat-static-isl-channel.cc
     model/sat-isl-pck-tag.cc
     model/sat-isl-net-device.cc
+    model/sat-isl-terminal.cc
     helper/groundstation-helper.cc
     helper/gsl-channel-helper.cc
     helper/walker-constellation-helper.cc
@@ -15,6 +16,7 @@ set(header_files
     model/sat-static-isl-channel.h
     model/sat-isl-pck-tag.h
     model/sat-isl-net-device.h
+    model/sat-isl-terminal.h
     helper/groundstation-helper.h
     helper/gsl-channel-helper.h
     helper/walker-constellation-helper.h

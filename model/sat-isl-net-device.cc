@@ -26,6 +26,8 @@
 #include "ns3/double.h"
 #include "ns3/trace-source-accessor.h"
 
+#include "ns3/mobility-model.h"
+
 
 namespace ns3
 {
@@ -329,6 +331,10 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
         }
 
         NS_ASSERT_MSG(!m_finishTransmissionEvent.IsRunning(), "Transmission already in Progress!");
+
+        Ptr<MobilityModel> mob = m_node->GetObject<MobilityModel>();
+
+        NS_LOG_FUNCTION(this << mob << mob->GetPosition());
 
         Ptr<Packet> pck = m_queue->Dequeue();
 
