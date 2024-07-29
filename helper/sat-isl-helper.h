@@ -48,7 +48,7 @@ public:
 
     NetDeviceContainer Install(Ptr<Node> node) const;
 
-    NetDeviceContainer Install(Ptr<Node> node, Ptr<SatelliteStaticISLChannel> channel) const;
+    NetDeviceContainer Install(Ptr<Node> node, Ptr<SatelliteISLChannel> channel) const;
 
 
 private:
@@ -62,7 +62,7 @@ private:
      * \param channel The channel to attach to the device.
      * \returns The new net device.
      */
-    Ptr<NetDevice> InstallPriv(Ptr<Node> node, Ptr<SatelliteStaticISLChannel> channel) const;
+    Ptr<NetDevice> InstallPriv(Ptr<Node> node, Ptr<SatelliteISLChannel> channel) const;
 
 
     ObjectFactory m_queueFactory;       //!< Transmission Queue Factory

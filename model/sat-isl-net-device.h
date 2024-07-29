@@ -30,7 +30,7 @@
 namespace ns3
 {
 
-class SatelliteStaticISLChannel;
+class SatelliteISLChannel;
 class ErrorModel;
 
 
@@ -67,7 +67,7 @@ public:
      * \param channel channel to assign to this net device
      *
      */
-    void SetChannel(Ptr<SatelliteStaticISLChannel> channel);
+    void SetChannel(Ptr<SatelliteISLChannel> channel);
 
     /**
      * Attach a queue to the SimpleNetDevice.
@@ -126,6 +126,12 @@ public:
     void SetPromiscReceiveCallback(PromiscReceiveCallback cb) override;
     bool SupportsSendFrom() const override;
 
+
+    //bool Send(Ptr<Packet> pck, const Address& dest, uint16_t proto, Ptr<Node> dest);
+
+    
+
+
 protected:
     void DoDispose() override;
 
@@ -151,7 +157,7 @@ private:
 
 
 
-    Ptr<SatelliteStaticISLChannel> m_channel;
+    Ptr<SatelliteISLChannel> m_channel;
     Ptr<Node> m_node;
     Mac48Address m_address;
     Ptr<ErrorModel> m_recErrModel;

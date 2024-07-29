@@ -19,7 +19,7 @@
 namespace ns3
 {
 
-class SatelliteStaticISLChannel : public Channel
+class SatelliteISLChannel : public Channel
 {
 public:
 
@@ -30,7 +30,7 @@ public:
      */
     static TypeId GetTypeId(void);
 
-    SatelliteStaticISLChannel();
+    SatelliteISLChannel();
 
 
     void Send(Ptr<Packet> pck, uint16_t protocol, Mac48Address dst, Mac48Address src, Ptr<NetDevice> sender);

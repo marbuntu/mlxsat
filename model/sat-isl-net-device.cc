@@ -12,7 +12,7 @@
 
 
 #include "sat-isl-net-device.h"
-#include "sat-static-isl-channel.h"
+#include "sat-isl-channel.h"
 #include "sat-isl-pck-tag.h"
 
 #include "ns3/simulator.h"
@@ -125,7 +125,7 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
     }
 
 
-    void SatelliteISLNetDevice::SetChannel(Ptr<SatelliteStaticISLChannel> channel)
+    void SatelliteISLNetDevice::SetChannel(Ptr<SatelliteISLChannel> channel)
     {
         NS_LOG_FUNCTION(this << channel);
         m_channel = channel;

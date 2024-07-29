@@ -20,9 +20,6 @@
 namespace ns3
 {
 
-
-
-
     TypeId SatelliteISLTerminal::GetTypeId()
     {
         static TypeId tid = TypeId("ns3::SatelliteISLTerminal")
