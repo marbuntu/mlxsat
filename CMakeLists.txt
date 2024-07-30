@@ -1,5 +1,6 @@
 set(source_files
     model/pseudo-tle.cc
+    model/sat-isl-signal.cc
     model/sat-isl-channel.cc
     model/sat-isl-pck-tag.cc
     model/sat-isl-net-device.cc
@@ -15,6 +16,7 @@ set(source_files
 
 set(header_files
     model/pseudo-tle.h
+    model/sat-isl-signal.h
     model/sat-isl-channel.h
     model/sat-isl-pck-tag.h
     model/sat-isl-net-device.h

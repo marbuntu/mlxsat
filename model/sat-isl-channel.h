@@ -10,12 +10,19 @@
  * 
  */
 
+
+
+#ifndef SATELLITE_ISL_CHANNEL_H
+#define SATELLITE_ISL_CHANNEL_H
+
+
 #include <ns3/channel.h>
 #include <ns3/object-base.h>
 #include <ns3/propagation-delay-model.h>
 #include <ns3/propagation-loss-model.h>
 
 #include "sat-isl-net-device.h"
+#include "sat-isl-signal.h"
 
 
 namespace ns3
@@ -41,6 +48,13 @@ public:
 
     //void Send(Ptr<Packet> pck, uint16_t protocol, Ptr<NetDevice> src, Ptr<Node> dst);
 
+    /**
+     * @brief   Transfer a Signal over the Channel
+     * 
+     * @param signal    Input Signal
+     */
+    void Transfer(Ptr<SatelliteISLSignal> signal, Ptr<NetDevice> sender);
+
 
     void SetPropagationDelayModel(Ptr<PropagationDelayModel> model);
 
@@ -62,7 +76,14 @@ public:
     virtual Ptr<NetDevice> GetDevice(std::size_t i) const;
 
 
+    Ptr<NetDevice> GetDevice(const Mac48Address addr) const;
+
+
+
 private:
+
+    uint64_t _addrToHash(const Mac48Address addr) const;
+    Mac48Address _hashToAddr(const uint64_t hash) const;
 
     //std::vector<Ptr<SimpleNetDevice>> m_devices;
     std::unordered_map<uint64_t, Ptr<SatelliteISLNetDevice>> m_devices;
@@ -79,3 +100,6 @@ private:
 
 
 } // namespace name
+
+
+#endif  /* SATELLITE_ISL_CHANNEL_H */

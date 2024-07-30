@@ -13,8 +13,10 @@
 
 #include "sat-leo-propagation-loss.h"
 
-
+#include "ns3/satellite-const-variables.h"
 #include "ns3/double.h"
+
+#include "math.h"
 
 namespace ns3
 {
@@ -75,6 +77,23 @@ namespace ns3
     {
         NS_LOG_FUNCTION(this);
         return m_fc;
+    }
+
+    
+    double SatellitePropagationLossLEO::DoCalcFSPL(Ptr<MobilityModel> tx_mob, Ptr<MobilityModel> rx_mob, double fc) const
+    {
+        NS_LOG_FUNCTION(this << fc);
+
+        return 10 * std::log10(DoCalcFSPLFactor(tx_mob, rx_mob, fc));
+    }
+
+
+    double SatellitePropagationLossLEO::DoCalcFSPLFactor(Ptr<MobilityModel> tx_mob, Ptr<MobilityModel> rx_mob, double fc) const
+    {
+        NS_LOG_FUNCTION(this << tx_mob << rx_mob << fc);
+
+        double distance = tx_mob->GetDistanceFrom(rx_mob);
+        return std::pow((SatConstVariables::SPEED_OF_LIGHT / (4.0 * M_PI * distance * fc)), 2.0);
     }
 
 

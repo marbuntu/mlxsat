@@ -11,10 +11,12 @@
  */
 
 
-#ifndef HEADER_TEMPLATE_H
-#define HEADER_TEMPLATE_H
+#ifndef SATELLITE_LEO_PROPAGATION_LOSS_H
+#define SATELLITE_LEO_PROPAGATION_LOSS_H
 
+#include "ns3/mobility-model.h"
 #include "ns3/propagation-loss-model.h"
+
 
 namespace ns3
 {
@@ -44,6 +46,8 @@ public:
      */
     double DoCalcRxPower(double txPowerDbm, Ptr<MobilityModel>, Ptr<MobilityModel>) const;
 
+    double DoCalcRxPower(double txPowerDbm, double fc, Ptr<MobilityModel> tx_mob, Ptr<MobilityModel> rx_mob);
+
     /**
      * @brief 
      * 
@@ -54,6 +58,16 @@ public:
 
 
     double DoCalcFSPL(Ptr<MobilityModel> tx_mob, Ptr<MobilityModel> rx_mob, double fc) const;
+
+
+    /**
+     * @brief Loss Factor due to Free Space Path Loss
+     * 
+     * @param tx_mod    Transmitter Mobility Model
+     * @param rx_mob    Receiver Mobility Model
+     * @param fc        Center Frequency
+     * @return double   FSPL Loss Factor
+     */
     double DoCalcFSPLFactor(Ptr<MobilityModel> tx_mod, Ptr<MobilityModel> rx_mob, double fc) const;
 
 
@@ -88,4 +102,4 @@ private:
 };  /* namespace ns3 */
 
 
-#endif /* HEADER_TEMPLATE_H */
+#endif /* SATELLITE_LEO_PROPAGATION_LOSS_H */

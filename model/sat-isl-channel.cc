@@ -67,6 +67,12 @@ namespace ns3
     }
 
 
+    // void SatelliteISLChannel::Send(Ptr<SatelliteISLSignal> signal)
+    // {
+    //     NS_LOG_FUNCTION(this << signal);
+    // }
+
+
     void SatelliteISLChannel::Send(Ptr<Packet> pck, uint16_t protocol, Mac48Address dst, Mac48Address src, Ptr<NetDevice> sender)
     {
         /**
@@ -169,5 +175,31 @@ namespace ns3
     }
 
 
+    Ptr<NetDevice> SatelliteISLChannel::GetDevice(const Mac48Address addr) const
+    {
+        NS_LOG_FUNCTION(this << addr);
+
+        if (auto rxd = m_devices.find(_addrToHash(addr)); rxd != m_devices.end())
+        {
+            return rxd->second;
+        }
+
+        return nullptr;
+    }
+
+
+    uint64_t SatelliteISLChannel::_addrToHash(const Mac48Address addr) const
+    {
+        uint64_t hash;
+        addr.CopyTo((uint8_t*) &hash);
+        return hash;
+    }
+
+    Mac48Address SatelliteISLChannel::_hashToAddr(const uint64_t hash) const
+    {
+        Mac48Address addr;
+        addr.CopyFrom((uint8_t*) &hash);
+        return addr;
+    }
 
 }   /* namespace ns-3   */
