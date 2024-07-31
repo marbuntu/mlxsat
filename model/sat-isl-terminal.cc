@@ -78,6 +78,14 @@ namespace ns3
                 , MakeBooleanAccessor(&SatelliteISLTerminal::m_dopplerMitigation)
                 , MakeBooleanChecker()
             )
+            .AddAttribute(
+                "UpdateOrientation"
+                , "Make the Orientation of the Interface dependent of the direction of movement of the spacecraft."
+                  "If set to false, the initialy set orientation will not change during the Simulation."
+                , BooleanValue(true)
+                , MakeBooleanAccessor(&SatelliteISLTerminal::m_updateOrientation)
+                , MakeBooleanChecker()
+            )
         ;
 
         return tid;
@@ -108,6 +116,13 @@ namespace ns3
     }
 
 
+    void SatelliteISLTerminal::SetParentMobility(Ptr<MobilityModel> mobility)
+    {
+        NS_LOG_FUNCTION(this << mobility);
+        m_mobility = mobility;
+    }
+
+
     void SatelliteISLTerminal::SetRelativeOrientation(Angles orientation)
     {
         NS_LOG_FUNCTION(this << orientation);
@@ -115,10 +130,16 @@ namespace ns3
     }
 
 
-    void SatelliteISLTerminal::SetNetDevice(Ptr<SatelliteISLNetDevice> device)
+    Vector SatelliteISLTerminal::GetOrientation() const
     {
-        NS_LOG_FUNCTION(this << device);
-        m_netdevice = device;
+        
+        if (m_updateOrientation)
+        {
+            Vector sc = m_netitf->GetObject<MobilityModel>()->GetVelocity();
+        }
+
+
+        return Vector(0, 0, 0); // m_orientation;
     }
 
 
@@ -129,13 +150,24 @@ namespace ns3
     }
 
 
+
+
+
     bool SatelliteISLTerminal::IsLinkUp(Mac48Address dst) const
     {
         NS_LOG_FUNCTION(this << dst);
 
-        // Check if the Device is attached to the same Channel
 
-        Ptr<NetDevice> dev = m_channel->GetDevice(dst);
+        // Check if the Device is attached to the same Channel
+        Ptr<SatelliteISLChannel> chn = StaticCast<SatelliteISLChannel>(m_netitf->GetChannel());
+        Ptr<NetDevice> dev = chn->GetDevice(dst);
+
+        Ptr<MobilityModel> mob_rx = dev->GetObject<MobilityModel>();
+
+        double dist = m_netitf->GetObject<MobilityModel>()->GetDistanceFrom(mob_rx);
+
+        NS_LOG_UNCOND(dist);
+
         if (dev == nullptr) return false;
 
         if (m_ttype == PointToPoint) return true;
@@ -146,5 +178,44 @@ namespace ns3
         return false;
     }
 
+
+    bool SatelliteISLTerminal::IsReady() const
+    {
+        return m_setup;
+    }
+
+
+    void SatelliteISLTerminal::SetupInternalInterface(Ptr<SatelliteISLChannel> channel, Ptr<MobilityModel> mobility, Mac48Address address)
+    {
+        NS_LOG_FUNCTION(this << channel << mobility << address);
+
+        NS_ASSERT_MSG(channel, "Parameter channel is nullptr");
+        NS_ASSERT_MSG(mobility, "Parameter mobility is nullptr");
+
+        m_netitf = CreateObject<SatelliteISLNetDevice>();
+        m_netitf->SetAddress(address);
+        m_netitf->SetChannel(channel);
+        m_netitf->AggregateObject(mobility);
+
+        m_setup = true;
+    }
+
+
+    void SatelliteISLTerminal::SetupSharedInterface(Ptr<SatelliteISLNetDevice> device)
+    {
+        NS_LOG_FUNCTION(this << device);
+
+        NS_ASSERT_MSG(device != nullptr, "Parameter is nullptr");
+        NS_ASSERT_MSG(device->GetChannel(), "Cannot assign NetDevice without aggregated Channel!");
+        NS_ASSERT_MSG(device->GetObject<MobilityModel>(), "Cannot assign NetDevice without aggregated Mobility Model!");
+        
+        m_netitf = device;
+    }
+
+
+    Ptr<SatelliteISLNetDevice> SatelliteISLTerminal::GetNetDevice() const
+    {
+        return m_netitf;
+    }
 
 }   /* namespace ns3 */

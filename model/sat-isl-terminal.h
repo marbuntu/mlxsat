@@ -78,6 +78,14 @@ public:
      */
     void SetRelativeOrientation(Angles orientaton);
 
+
+    /**
+     * @brief Get the Pointing direction of the Interface
+     * 
+     * @return Vector  Unit vector of the pointing direction
+     */
+    Vector GetOrientation() const;
+
     /**
      * @brief Set the Interface Antenna Model
      * 
@@ -92,16 +100,8 @@ public:
      */
     void AttachToChannel(Ptr<SatelliteISLChannel> channel);
 
-
     /**
-     * @brief Set the ISL NetDevice
-     * 
-     * @param device 
-     */
-    void SetNetDevice(Ptr<SatelliteISLNetDevice> device);
-
-    /**
-     * @brief Check If the link is Up
+     * @brief Check If the link to a specific node is available
      * 
      * @return true 
      * @return false 
@@ -116,9 +116,42 @@ public:
     void SetCenterFrequency(double fc);
 
 
+    /**
+     * @brief Setup the Terminal to use an internal NetDevice
+     * 
+     * @param channel 
+     * @param mobility 
+     * 
+     */
+    void SetupInternalInterface(Ptr<SatelliteISLChannel> channel, Ptr<MobilityModel> mobility, Mac48Address address);
+
+    /**
+     * @brief Setup the Terminal to use an already setup, shared NetDevice
+     * 
+     * @param device 
+     * 
+     */
+    void SetupSharedInterface(Ptr<SatelliteISLNetDevice> device);
+
+    /**
+     * @brief Check if the terminal is properly setup and ready
+     * 
+     * @return true 
+     * @return false 
+     */
+    bool IsReady() const;
+
+    Ptr<SatelliteISLNetDevice> GetNetDevice() const;
+
 private:
 
-    Ptr<SatelliteISLNetDevice> m_netdevice;
+    bool m_setup;
+
+    bool m_updateOrientation;
+
+    Ptr<SatelliteISLNetDevice> m_netitf;
+
+    Ptr<MobilityModel> m_mobility;
     Ptr<SatelliteISLChannel> m_channel;
 
 

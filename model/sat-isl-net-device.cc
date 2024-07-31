@@ -425,5 +425,10 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
     }
 
 
+    Mac48Address SatelliteISLNetDevice::GetMacAddress() const
+    {
+        return m_address;
+    }
+
 
 }   /* namespace ns3 */

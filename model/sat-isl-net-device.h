@@ -95,6 +95,9 @@ public:
     void SetReceiveErrorModel(Ptr<ErrorModel> em);
 
 
+    Mac48Address GetMacAddress() const;
+
+
     // inherited from NetDevice base class.
     void SetIfIndex(const uint32_t index) override;
     uint32_t GetIfIndex() const override;
