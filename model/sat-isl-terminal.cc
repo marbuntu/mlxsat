@@ -112,14 +112,21 @@ namespace ns3
     void SatelliteISLTerminal::AttachToChannel(Ptr<SatelliteISLChannel> channel)
     {
         NS_LOG_FUNCTION(this << channel);
-        m_channel = channel;
+        //m_channel = channel;
     }
 
 
     void SatelliteISLTerminal::SetParentMobility(Ptr<MobilityModel> mobility)
     {
         NS_LOG_FUNCTION(this << mobility);
-        m_mobility = mobility;
+        //m_mobility = mobility;
+    }
+
+
+    Ptr<MobilityModel> SatelliteISLTerminal::GetParentMobility() const
+    {
+        NS_LOG_FUNCTION(this);
+        return m_netitf->GetObject<MobilityModel>();
     }
 
 
@@ -133,13 +140,21 @@ namespace ns3
     Vector SatelliteISLTerminal::GetOrientation() const
     {
         
+        Vector nullvec = Vector(0, 0, 0);
+
         if (m_updateOrientation)
         {
             Vector sc = m_netitf->GetObject<MobilityModel>()->GetVelocity();
+
+            if (sc.GetLength() == 0) return nullvec;
+
+            
+
+            NS_LOG_FUNCTION(this << sc);
         }
 
 
-        return Vector(0, 0, 0); // m_orientation;
+        return nullvec; // m_orientation;
     }
 
 
@@ -148,9 +163,6 @@ namespace ns3
         NS_LOG_FUNCTION(this << fc);
         m_fc = fc;
     }
-
-
-
 
 
     bool SatelliteISLTerminal::IsLinkUp(Mac48Address dst) const
@@ -169,6 +181,8 @@ namespace ns3
         NS_LOG_UNCOND(dist);
 
         if (dev == nullptr) return false;
+
+        GetOrientation();
 
         if (m_ttype == PointToPoint) return true;
 
@@ -217,5 +231,51 @@ namespace ns3
     {
         return m_netitf;
     }
+
+
+    void SatelliteISLTerminal::SetAntennaModel(Ptr<AntennaModel> antenna)
+    {
+        NS_LOG_FUNCTION(this << antenna);
+        m_antenna = antenna;
+    }
+
+
+    Vector toUnitVector(Vector vec)
+    {
+        double len = vec.GetLength();
+        if (len != 0) {
+            return Vector(vec.x / len, vec.y / len, vec.z / len);
+        }
+
+        return Vector(0, 0, 0);
+    }
+
+    void SatelliteISLTerminal::test(Ptr<SatelliteISLTerminal> other)
+    {
+        NS_LOG_FUNCTION(this << other);
+
+        Vector v = toUnitVector(this->GetParentMobility()->GetVelocity());
+        Vector p = toUnitVector(this->GetParentMobility()->GetPosition());
+
+        Angles ori = Angles(v, p);
+        Angles dir = Angles(other->GetParentMobility()->GetPosition(), this->GetParentMobility()->GetPosition());
+
+        NS_LOG_INFO(RadiansToDegrees(dir.GetInclination()));
+        NS_LOG_INFO(RadiansToDegrees(ori.GetAzimuth()) << " " << RadiansToDegrees(ori.GetInclination()));
+
+
+        Ptr<SatelliteISLChannel> chn = StaticCast<SatelliteISLChannel>(m_netitf->GetChannel());
+
+        double Ga = m_antenna->GetGainDb(dir);
+
+        double fspl = chn->GetPropagationLossModel()->CalcRxPower(0.0, this->GetParentMobility(), other->GetParentMobility());
+
+        printf("FSPL: %.04f \t Ga: %.04f\n", fspl, Ga);
+
+
+        NS_LOG_INFO("\n");
+
+    }
+
 
 }   /* namespace ns3 */

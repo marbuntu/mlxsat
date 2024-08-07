@@ -54,8 +54,19 @@ namespace ns3
     }
 
 
-    double SatellitePropagationLossLEO::DoCalcRxPower(double txPowerDbm, Ptr<MobilityModel>, Ptr<MobilityModel>) const
+    double SatellitePropagationLossLEO::DoCalcRxPower(double txPowerDbm, Ptr<MobilityModel> tx_mob, Ptr<MobilityModel> rx_mob) const
     {
+        // (( 4 * PI * d ) / lambda )^2
+
+        double d = tx_mob->GetDistanceFrom(rx_mob);
+
+        double fspl = (4 * M_PI * d * m_fc) / SPEED
+
+
+        printf("Distance: %.02f\n", d);
+
+
+
         return 0.0;
     }
 

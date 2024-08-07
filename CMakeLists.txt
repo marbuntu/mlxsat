@@ -5,6 +5,7 @@ set(source_files
     model/sat-isl-pck-tag.cc
     model/sat-isl-net-device.cc
     model/sat-isl-terminal.cc
+    model/sat-isl-antenna.cc
     model/sat-leo-propagation-loss.cc
     model/sat-leo-delay-model.cc
     helper/groundstation-helper.cc
@@ -21,6 +22,7 @@ set(header_files
     model/sat-isl-pck-tag.h
     model/sat-isl-net-device.h
     model/sat-isl-terminal.h
+    model/sat-isl-antenna.h
     model/sat-leo-propagation-loss.h
     model/sat-leo-delay-model.h
     helper/groundstation-helper.h

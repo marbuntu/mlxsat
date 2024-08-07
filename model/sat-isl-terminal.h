@@ -143,6 +143,9 @@ public:
 
     Ptr<SatelliteISLNetDevice> GetNetDevice() const;
 
+
+    void test(Ptr<SatelliteISLTerminal> other);
+
 private:
 
     bool m_setup;
@@ -151,8 +154,9 @@ private:
 
     Ptr<SatelliteISLNetDevice> m_netitf;
 
-    Ptr<MobilityModel> m_mobility;
-    Ptr<SatelliteISLChannel> m_channel;
+    //Ptr<MobilityModel> m_mobility;
+    //Ptr<SatelliteISLChannel> m_channel;
+    Ptr<AntennaModel> m_antenna;
 
 
     SatISLTerminalMode_t m_phyMode;
@@ -167,7 +171,10 @@ private:
     bool        m_dopplerMitigation;
 
 
-    std::unordered_map<std::string, Ptr<SatelliteISLNetDevice>> m_nodes;
+
+    Ptr<FriisPropagationLossModel> _getPropagationLossModel() const;
+    Ptr<MobilityModel> _getMobilityModel() const;
+    Ptr<Channel> _getChannelModel() const;
 
 
 }; /* SatelliteISLTerminal */
