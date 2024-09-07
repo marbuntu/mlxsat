@@ -42,14 +42,15 @@ namespace ns3
 
     double ConvertTheta(const double theta)
     {
-        double a = fmod(theta + 90, 180);
-        if (a < 0)
+        double a = WrapTo180(theta);
+        printf("%.02f\n",a);
+        if (a < -90)
         {
-            a += 180;
+            a = -180 - a;
         }
-        a -= 90;
 
-        NS_ASSERT_MSG(-90 <= a && a < 90, "Invalid wrap to [-90, 90[ / a=" << a);
+
+        NS_ASSERT_MSG(-90 <= a && a <= 90, "Invalid wrap to [-90, 90[ / a=" << a);
 
         return DegreesToRadians(a);
     }
@@ -79,6 +80,36 @@ namespace ns3
         this->w = cos(half_theta);
 
         return *this;
+    }
+
+
+    Quaternion Quaternion::FromAngles(const double roll, const double pitch, const double yaw)
+    {
+        double cr = cos(roll * 0.5);
+        double sr = sin(roll * 0.5);
+        double cp = cos(pitch * 0.5);
+        double sp = sin(pitch * 0.5);
+        double cy = cos(yaw * 0.5);
+        double sy = sin(yaw * 0.5);
+
+        w = cr * cp * cy + sr * sp * sy;
+        x = sr * cp * cy - cr * sp * sy;
+        y = cr * sp * cy + sr * cp * sy;
+        z = cr * cp * sy - sr * sp * cy;
+
+        return *this;
+    }
+
+
+    Quaternion Quaternion::Inverse() const
+    {
+        Quaternion nq;
+        nq.w = this->w;
+        nq.x = -this->x;
+        nq.y = -this->y;
+        nq.z = -this->z;
+
+        return nq;
     }
 
 
@@ -186,24 +217,40 @@ namespace ns3
 
     Vector OrientationTransformationHelper::TransformVector(const Vector &vec, const LVLHReference &ref) const
     {
-        Vector imd = vec;
-        
-        if (m_psi != 0.0)
-        {
-            imd = Yaw(imd, ref.m_hr);
-        }
+        //Vector imd = vec;
 
-        if (m_the != 0.0)
-        {
-            imd = Pitch(imd, ref.m_hl);
-        }
+        printf("\nTrans: %.02f %.02f %.02f\n", m_phi, m_the, m_psi);
 
-        if (m_phi != 0.0)
-        {
-            imd = Roll(imd, ref.m_ht);
-        }
+        Quaternion quat = Quaternion().FromAngles(m_phi, m_the, m_psi);
+        return quat.RotateVector(vec);
 
-        return imd;
+        // if (m_psi != 0.0)
+        // {
+        //     imd = Yaw(imd, ref.m_hr);
+        // }
+
+        // if (m_the != 0.0)
+        // {
+        //     imd = Pitch(imd, ref.m_hl);
+        // }
+
+        // if (m_phi != 0.0)
+        // {
+        //     imd = Roll(imd, ref.m_ht);
+        // }
+
+        // return imd;
+    }
+
+
+    Vector OrientationTransformationHelper::ReverseTransformVector(const Vector &vec, const LVLHReference &ref) const
+    {
+        //Vector imd = vec;
+
+        Quaternion quat = Quaternion().FromAngles(m_phi, m_the, m_psi).Inverse();
+        return quat.RotateVector(vec);
+
+        //return inv.TransformVector(vec, ref);
     }
 
 

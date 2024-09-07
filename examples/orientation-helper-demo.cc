@@ -18,23 +18,38 @@ int main( int argc, char* argv[] )
 {
     LogComponentEnable("SatelliteISLTerminal", LOG_LEVEL_ALL);
 
-    Vector p1(2, 0, 3);
-    Vector p2(0, 3, 0);
+    Vector p1(0, 0, 3);
+    Vector p2(3 * sin(M_PI / 4.0), 3 * cos(M_PI / 4.0), 3);
 
     Vector v1(-1, 0, 0);
-    Vector v2(-1, 0, 0);
+    //Vector v2(-1, 0, 0);
 
+    printf("a: %.02f\n", ConvertTheta(200));
+    printf("a: %.02f\n", ConvertTheta(90));
+    printf("a: %.02f\n", ConvertTheta(45));
+    printf("a: %.02f\n", ConvertTheta(-0.5));
+    printf("a: %.02f\n", ConvertTheta(-90));
+    printf("a: %.02f\n", ConvertTheta(-170));
 
-    Ptr<SatelliteISLTerminal> ter = CreateObjectWithAttributes<SatelliteISLTerminal>();
-
-    OrientationTransformationHelper orien = OrientationTransformationHelper();
-    orien.SetAngles(0, 0, -90.0);
+    Ptr<SatelliteISLTerminal> tn = CreateObjectWithAttributes<SatelliteISLTerminal>();
+    Ptr<SatelliteISLTerminal> te = CreateObjectWithAttributes<SatelliteISLTerminal>();
+    Ptr<SatelliteISLTerminal> tw = CreateObjectWithAttributes<SatelliteISLTerminal>();
+    Ptr<SatelliteISLTerminal> ts = CreateObjectWithAttributes<SatelliteISLTerminal>();
 
     LVLHReference ref = LVLHReference();
     ref.UpdateLocalReference(p1, v1);
 
-    ter->SetRelativeOrientation(0, 0, -90.0);
-    ter->SetLocalReference(&ref);
+    tn->SetRelativeOrientation(0.0, 0.0, 0.0);
+    tn->SetLocalReference(&ref);
+
+    te->SetRelativeOrientation(0.0, 0.0, 90.0);
+    te->SetLocalReference(&ref);
+
+    ts->SetRelativeOrientation(0.0, 0.0, 180.0);
+    ts->SetLocalReference(&ref);
+
+    tw->SetRelativeOrientation(0.0, 0.0, 270.0);
+    tw->SetLocalReference(&ref);
 
     //Vector axis = orien.RadialComponent();
     //Vector dir = orien.OrbitalComponent();
@@ -45,6 +60,15 @@ int main( int argc, char* argv[] )
     Vector diff = Normalize(Vector(p2.x - p1.x, p2.y - p1.y, p2.z - p1.z));
 
 
+    printf("\n\nNORTH:\n");
+    tn->GetRelativeAngle(diff);
+    printf("\n\nEAST:\n");
+    te->GetRelativeAngle(diff);
+    printf("\n\nSOUTH:\n");
+    ts->GetRelativeAngle(diff);
+    printf("\n\nWEST:\n");
+    tw->GetRelativeAngle(diff);
+
     // Vector qr_v = orien.Rotate(dir, rot);
 
     // printf("\n QT: %.04f %.04f %.04f %.04f \n", rot.w, rot.x, rot.y, rot.z);
@@ -54,19 +78,18 @@ int main( int argc, char* argv[] )
     // printf("\nAoD: %f rad / %.4f °\r\n", AoD, AoD * (180.0 / M_PI));
 
 
-    Vector qr_v = orien.TransformVector(ref.m_ht, ref);// quat.RotateVector(dir);
+    //Vector qr_v = orien.TransformVector(ref.m_ht, ref);// quat.RotateVector(dir);
 
-    ter->GetRelativeAngle(diff);
 
     //printf("\n QT: %.04f %.04f %.04f %.04f \n", rot.w, rot.x, rot.y, rot.z);
-    printf(" VR: %.04f %.04f %.04f \n\n", qr_v.x, qr_v.y, qr_v.z);
+    //printf(" VR: %.04f %.04f %.04f \n\n", qr_v.x, qr_v.y, qr_v.z);
 
-    double AoD = acos(DotProduct(qr_v, diff));
-    printf("\nAoD: %f rad / %.4f °\r\n", AoD, AoD * (180.0 / M_PI));
+    //double AoD = acos(DotProduct(qr_v, diff));
+    //printf("\nAoD: %f rad / %.4f °\r\n", AoD, AoD * (180.0 / M_PI));
 
 
-    SatelliteISLTerminal terminal;
-    terminal.SetRelativeOrientation(0.0, 0.0, -90.0);
+    //SatelliteISLTerminal terminal;
+    //terminal.SetRelativeOrientation(0.0, 90.0, -90.0);
 
     //terminal.SetRelativeOrientation(quat);
 

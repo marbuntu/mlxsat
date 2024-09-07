@@ -395,7 +395,7 @@ namespace ns3
         Vector v = toUnitVector(this->GetParentMobility()->GetVelocity());
         Vector p = toUnitVector(this->GetParentMobility()->GetPosition());
 
-        Angles ori = Angles(v, p);
+        Angles ori = Angles(p, v);
         Angles dir = Angles(other->GetParentMobility()->GetPosition(), this->GetParentMobility()->GetPosition());
 
         NS_LOG_INFO(RadiansToDegrees(dir.GetInclination()));
@@ -403,6 +403,8 @@ namespace ns3
 
 
         Ptr<SatelliteISLChannel> chn = StaticCast<SatelliteISLChannel>(m_netitf->GetChannel());
+
+
 
         double Ga = m_antenna->GetGainDb(dir);
 
@@ -420,10 +422,18 @@ namespace ns3
     {
         NS_LOG_FUNCTION(this << vec);
 
-        Vector ptd = m_pointingHelper.TransformVector(m_ref->m_ht, *m_ref);
+        Vector ptd = m_pointingHelper.TransformVector(m_ref->m_hr, *m_ref);
+
+        Vector rev = m_pointingHelper.ReverseTransformVector(vec, *m_ref);
+
+        Angles ang = Angles(rev);
+
+        NS_LOG_FUNCTION(this << rev);
+        NS_LOG_FUNCTION(this << "Azi: " << RadiansToDegrees(ang.GetAzimuth()) << " Inc: " << RadiansToDegrees(ang.GetInclination()));
+
         double cp = acos(DotProduct(ptd, Normalize(vec)));
 
-        NS_LOG_FUNCTION(this << ptd << cp);
+        NS_LOG_FUNCTION(this << "Vec: " << ptd << " Dot. " << RadiansToDegrees(cp));
 
         return 0.0;
     }

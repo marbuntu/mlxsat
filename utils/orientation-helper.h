@@ -78,6 +78,12 @@ namespace ns3
         Quaternion FromRotation(const Vector &axis, const double theta);
 
 
+        Quaternion FromAngles(const double roll, const double pitch, const double yaw);
+
+
+        Quaternion Inverse() const;
+
+
         /**
          * @brief   Rotate a Vector
          * 
@@ -183,6 +189,8 @@ namespace ns3
 
 
         Vector TransformVector(const Vector &vec, const LVLHReference &ref) const;
+
+        Vector ReverseTransformVector(const Vector &vec, const LVLHReference &ref) const;
 
         // /**
         //  * @brief 
