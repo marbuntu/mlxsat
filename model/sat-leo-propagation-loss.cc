@@ -60,7 +60,7 @@ namespace ns3
 
         double d = tx_mob->GetDistanceFrom(rx_mob);
 
-        double fspl = (4 * M_PI * d * m_fc) / SPEED
+        double fspl = (4 * M_PI * d * m_fc); /// SPEED
 
 
         printf("Distance: %.02f\n", d);

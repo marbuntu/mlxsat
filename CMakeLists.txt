@@ -13,6 +13,7 @@ set(source_files
     helper/walker-constellation-helper.cc
     helper/walker-orbit-helper.cc
     helper/sat-isl-helper.cc
+    utils/orientation-helper.cc
 )
 
 set(header_files
@@ -30,6 +31,12 @@ set(header_files
     helper/walker-constellation-helper.h
     helper/walker-orbit-helper.h
     helper/sat-isl-helper.h
+    utils/orientation-helper.h
+)
+
+
+set(test_sources
+    test/mlxsat-orientation-helper-test.cc
 )
 
 build_lib(
@@ -40,4 +47,5 @@ build_lib(
         ${libcore}
         ${libapplications}
         ${libflow-monitor}
+    TEST_SOURCES ${test_sources}
 )

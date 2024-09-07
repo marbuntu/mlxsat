@@ -1,5 +1,6 @@
 set(base_examples
     satellite-terminal-demo
+    orientation-helper-demo
 )
 
 foreach(

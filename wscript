@@ -11,6 +11,7 @@ def build(bld):
 
     module_test = bld.create_ns3_module_test_library('mlxsat')
     module_test.source = [
+        'test/mlxsat-orientation-helper-test.cc'
         ]
 
     headers = bld(features='ns3header')

@@ -17,7 +17,7 @@
 #include "ns3/enum.h"
 #include "ns3/boolean.h"
 #include "ns3/double.h"
-
+#include "ns3/vector-extensions.h"
 
 
 namespace ns3
@@ -25,6 +25,132 @@ namespace ns3
 
     NS_LOG_COMPONENT_DEFINE("SatelliteISLTerminal");
     NS_OBJECT_ENSURE_REGISTERED(SatelliteISLTerminal);
+
+
+
+    OrientationHelper::OrientationHelper()
+    {
+    }
+
+
+    OrientationHelper::~OrientationHelper()
+    {
+    }
+
+
+    bool OrientationHelper::UpdateOrientation(const Vector &position, const Vector &velocity)
+    {
+        NS_LOG_FUNCTION(this << position << velocity);
+
+
+
+        return true;
+    }
+
+
+    Vector OrientationHelper::RadialComponent() const
+    {
+        return m_hr;
+    }
+
+
+    Vector OrientationHelper::OrthorgonalComponent() const
+    {
+        return m_hl;
+    }
+
+
+    Vector OrientationHelper::OrbitalComponent() const
+    {
+        return m_ht;
+    }
+
+
+    // Quaternion_t OrientationHelper::RotationToQuaternion(const Vector &vec, double theta) const
+    // {
+    //     NS_LOG_FUNCTION(this << vec << theta);
+
+    //     Vector nrm = Normalized(vec);
+    //     double half_theta = 0.5 * theta;
+
+    //     Quaternion_t quat =
+    //     {
+    //         .x = nrm.x * sin(half_theta),
+    //         .y = nrm.y * sin(half_theta),
+    //         .z = nrm.z * sin(half_theta),
+    //         .w = cos(half_theta)
+    //     };
+
+    //     return quat;
+    // }
+
+
+    // double OrientationHelper::CalculateOrientationAngle(const Vector &vec) const
+    // {
+    //     NS_LOG_FUNCTION(this << DotProduct(m_rot, vec) << vec);
+
+    //     Vector vn = Normalized(vec);
+    //     return acos(DotProduct(m_rot, vn));
+    // }
+
+
+    Vector OrientationHelper::Normalized(const Vector &vec) const
+    {
+        //return (vec * ( 1.0f / vec.GetLength()));
+        double N = 1 / vec.GetLength();
+        return Vector(vec.x * N, vec.y * N, vec.z * N);
+    }
+
+
+    // Vector OrientationHelper::RotateVector(const Vector& vec, const Quaternion_t &quat) const
+    // {
+    //     // Extract the vector part of the quaternion
+    //     Vector u(quat.x, quat.y, quat.z);
+
+    //     // Extract the scalar part of the quaternion
+    //     double s = quat.w;
+
+    //     // Do the math
+    //     Vector vprime = 2.0 * DotProduct(u, vec) * u + ( s*s - DotProduct(u, u)) * vec + 2.0 * s * CrossProduct(u, vec);
+        
+    //     // 2.0f * DotProduct(u, vec) * u
+    //     //    + (s*s - DotProduct(u, u)) * vec
+    //     //    + 2.0f * s * CrossProduct(u, vec);
+
+    //     return vprime;
+    // }
+
+
+    // Vector OrientationHelper::Rotate(const Vector &vec, const Quaternion_t &quat) const
+    // {
+    //     NS_LOG_FUNCTION(this << vec);
+
+    //     return RotateVector(vec, quat);
+    // }
+
+
+    // Quaternion_t OrientationHelper::RotationFromVectors(const Vector &v1, const Vector &v2) const
+    // {
+    //     Quaternion_t quat = {.x = 0, .y = 0, .z = 0, .w = 0};
+
+    //     Vector u1 = Normalized(v1);
+    //     Vector u2 = Normalized(v2);
+
+    //     Vector cross = CrossProduct(u1, u2);
+    //     double dot = DotProduct(u1, u2);
+
+
+    //     Vector axis = Normalized(cross);
+    //     double half_theta = acos(dot) / 2.0;
+    //     double sine_htheta = sin(half_theta);
+
+    //     quat.x = axis.x * sine_htheta;
+    //     quat.y = axis.y * sine_htheta;
+    //     quat.z = axis.z * sine_htheta;
+    //     quat.w = cos(half_theta);
+
+    //     return quat;
+    // }
 
 
 
@@ -99,27 +225,13 @@ namespace ns3
 
 
     SatelliteISLTerminal::SatelliteISLTerminal()
-    : m_orientation(Vector(0, 0, 0))
+    : m_orientation(Quaternion())
     {
     }
 
 
     SatelliteISLTerminal::~SatelliteISLTerminal()
     {
-    }
-
-
-    void SatelliteISLTerminal::AttachToChannel(Ptr<SatelliteISLChannel> channel)
-    {
-        NS_LOG_FUNCTION(this << channel);
-        //m_channel = channel;
-    }
-
-
-    void SatelliteISLTerminal::SetParentMobility(Ptr<MobilityModel> mobility)
-    {
-        NS_LOG_FUNCTION(this << mobility);
-        //m_mobility = mobility;
     }
 
 
@@ -130,11 +242,36 @@ namespace ns3
     }
 
 
-    void SatelliteISLTerminal::SetRelativeOrientation(Angles orientation)
+    // void SatelliteISLTerminal::SetRelativeOrientation(Angles orientation)
+    // {
+    //     NS_LOG_FUNCTION(this << orientation);
+    //     //m_orientation = orientation;
+    // }
+
+
+    // void SatelliteISLTerminal::SetRelativeOrientation(const Vector &orientation)
+    // {
+    //     NS_LOG_FUNCTION(this << orientation);
+
+
+    //     //m_orientation = quat;
+    // }
+
+
+    void SatelliteISLTerminal::SetLocalReference(Ptr<LVLHReference> ref)
     {
-        NS_LOG_FUNCTION(this << orientation);
-        m_orientation = orientation;
+        NS_LOG_FUNCTION(this << ref);
+        m_ref = ref;
     }
+
+
+    void SatelliteISLTerminal::SetRelativeOrientation(const double degree_phi, const double degree_theta, const double degree_psi)
+    {
+        NS_LOG_FUNCTION(this << degree_phi << degree_theta << degree_psi);
+
+        m_pointingHelper.SetAngles(degree_phi, degree_theta, degree_psi);
+    }    
+
 
 
     Vector SatelliteISLTerminal::GetOrientation() const
@@ -148,13 +285,14 @@ namespace ns3
 
             if (sc.GetLength() == 0) return nullvec;
 
+            NS_LOG_FUNCTION(this << sc);
+
             
 
-            NS_LOG_FUNCTION(this << sc);
         }
 
 
-        return nullvec; // m_orientation;
+        return nullvec;
     }
 
 
@@ -275,6 +413,25 @@ namespace ns3
 
         NS_LOG_INFO("\n");
 
+    }
+
+
+    double SatelliteISLTerminal::GetRelativeAngle(const Vector &vec) const
+    {
+        NS_LOG_FUNCTION(this << vec);
+
+        Vector ptd = m_pointingHelper.TransformVector(m_ref->m_ht, *m_ref);
+        double cp = acos(DotProduct(ptd, Normalize(vec)));
+
+        NS_LOG_FUNCTION(this << ptd << cp);
+
+        return 0.0;
+    }
+
+
+    double SatelliteISLTerminal::GetRelativeAngleDeg(const Vector &vec) const
+    {
+        return RadiansToDegrees(GetRelativeAngle(vec));
     }
 
 

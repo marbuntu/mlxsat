@@ -27,7 +27,7 @@ namespace ns3
      * @brief Model of a basic Antenna for Inter-Satellite-Links
      * 
      *        The radiation Pattern is assumed to be rotationally symmetric arround the pointing vector of the main Lobe.
-     *        Therefore the 
+     *        
      */
     class SatelliteISLAntenna : public AntennaModel
     {
@@ -48,6 +48,9 @@ namespace ns3
         ~SatelliteISLAntenna();
 
         double GetGainDb(Angles a);
+
+
+        // void SetAntennaOrientation(const Vector &vec);
 
 
 

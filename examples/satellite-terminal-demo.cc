@@ -17,6 +17,8 @@
 using namespace ns3;
 
 
+//static ns3::OrientationHelperTestSuite g_Suite("mlxsat-one", "mod-example");
+
 
 typedef struct {
 

@@ -7,4 +7,8 @@ def build(bld):
     obj = bld.create_ns3_program('satellite-terminal-demo', ["satellite", "mlxsat"])
     obj.source = 'satellite-terminal-demo.cc'
 
+    module_test = bld.create_ns3_module_test_library('mlxsat')
+    module_test.source = [
+        'test/satellite-terminal-demo.cc'
+    ]
 
