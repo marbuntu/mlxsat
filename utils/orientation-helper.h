@@ -81,6 +81,9 @@ namespace ns3
         Quaternion FromAngles(const double roll, const double pitch, const double yaw);
 
 
+        Quaternion FromVectors(const Vector &v, const Vector &v_prime);
+
+
         Quaternion Inverse() const;
 
 
@@ -93,6 +96,8 @@ namespace ns3
         
         Vector RotateVector(const Vector &vec) const;
 
+
+        double Norm() const;
 
 
         /**
@@ -126,6 +131,10 @@ namespace ns3
         ~LVLHReference();
 
 
+
+        void SetWorldReference(const Vector &unit_x, const Vector &unit_y, const Vector &unit_z);
+
+
         /**
          * @brief Update Local LVLH-Coordinate Reference System
          * 
@@ -135,9 +144,29 @@ namespace ns3
         void UpdateLocalReference(const Vector &position, const Vector &velocity);
 
 
+
+        Vector ToWorldSpace(const Vector &vec) const;
+
+
+        Vector ToLocalSpace(const Vector &vec) const;
+
+
+
         Vector m_hr;        // z-Axis, Radial Component
         Vector m_ht;        // x-Axis, Tangential Component
         Vector m_hl;        // y-Axis, Orthorgonal Component
+
+        Vector m_origin;    // Distance Vector to World Ref Origin
+
+        Vector m_ex;        // World Ref x-Axis
+        Vector m_ey;        // World Ref y-Axis
+        Vector m_ez;        // World Ref z-Axis
+
+
+        Quaternion m_t1;    // Transformation 1
+        Quaternion m_t2;    // Transformation 2
+
+
     };  /* LVLH Reference */
 
 

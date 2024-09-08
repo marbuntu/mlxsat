@@ -388,60 +388,29 @@ namespace ns3
         return Vector(0, 0, 0);
     }
 
-    void SatelliteISLTerminal::test(Ptr<SatelliteISLTerminal> other)
+
+    Angles SatelliteISLTerminal::GetRelativeAngles(const Vector &satpos) const
     {
-        NS_LOG_FUNCTION(this << other);
+        NS_LOG_FUNCTION(this << satpos);
 
-        Vector v = toUnitVector(this->GetParentMobility()->GetVelocity());
-        Vector p = toUnitVector(this->GetParentMobility()->GetPosition());
+        // NS_LOG_FUNCTION(this << m_ref->m_t1);
+        // NS_LOG_FUNCTION(this << m_ref->m_t2);
 
-        Angles ori = Angles(p, v);
-        Angles dir = Angles(other->GetParentMobility()->GetPosition(), this->GetParentMobility()->GetPosition());
+        Vector ptd = m_pointingHelper.TransformVector(m_ref->m_ht, *m_ref);
 
-        NS_LOG_INFO(RadiansToDegrees(dir.GetInclination()));
-        NS_LOG_INFO(RadiansToDegrees(ori.GetAzimuth()) << " " << RadiansToDegrees(ori.GetInclination()));
-
-
-        Ptr<SatelliteISLChannel> chn = StaticCast<SatelliteISLChannel>(m_netitf->GetChannel());
-
-
-
-        double Ga = m_antenna->GetGainDb(dir);
-
-        double fspl = chn->GetPropagationLossModel()->CalcRxPower(0.0, this->GetParentMobility(), other->GetParentMobility());
-
-        printf("FSPL: %.04f \t Ga: %.04f\n", fspl, Ga);
-
-
-        NS_LOG_INFO("\n");
-
-    }
-
-
-    double SatelliteISLTerminal::GetRelativeAngle(const Vector &vec) const
-    {
-        NS_LOG_FUNCTION(this << vec);
-
-        Vector ptd = m_pointingHelper.TransformVector(m_ref->m_hr, *m_ref);
-
-        Vector rev = m_pointingHelper.ReverseTransformVector(vec, *m_ref);
-
+        Vector rev = m_ref->ToWorldSpace(satpos); //m_pointingHelper.ReverseTransformVector(vec, *m_ref);
+        rev = m_pointingHelper.TransformVector(rev, *m_ref);
         Angles ang = Angles(rev);
 
-        NS_LOG_FUNCTION(this << rev);
+        // NS_LOG_FUNCTION(this << ptd);
+        // NS_LOG_FUNCTION(this << rev);
         NS_LOG_FUNCTION(this << "Azi: " << RadiansToDegrees(ang.GetAzimuth()) << " Inc: " << RadiansToDegrees(ang.GetInclination()));
 
-        double cp = acos(DotProduct(ptd, Normalize(vec)));
+        double cp = acos(DotProduct(ptd, Normalize(satpos)));
 
         NS_LOG_FUNCTION(this << "Vec: " << ptd << " Dot. " << RadiansToDegrees(cp));
 
-        return 0.0;
-    }
-
-
-    double SatelliteISLTerminal::GetRelativeAngleDeg(const Vector &vec) const
-    {
-        return RadiansToDegrees(GetRelativeAngle(vec));
+        return ang;
     }
 
 

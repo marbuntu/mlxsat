@@ -57,6 +57,9 @@ namespace ns3
 
 
 
+//  BEGIN: Quaternion +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
     Quaternion::Quaternion()
     {
     }
@@ -101,6 +104,37 @@ namespace ns3
     }
 
 
+    Quaternion Quaternion::FromVectors(const Vector &v, const Vector &v_prime)
+    {
+        Vector ev = Normalize(v);
+        Vector ep = Normalize(v_prime);
+
+        Vector axis = Normalize(CrossProduct(ev, ep));
+        double theta = 0.5 * acos(DotProduct(ev, ep));
+
+
+        if (isnan(axis.x) || isnan(axis.y) || isnan(axis.z))
+        {
+            this->w = 0.0;
+            this->x = 0.0;
+            this->y = 0.0;
+            this->z = 0.0;
+
+            return *this;
+        }
+
+
+        printf("AXIS: %.02f %.02f %.02f\n", axis.x, axis.y, axis.z);
+
+        this->w = cos(theta);
+        this->x = axis.x * sin(theta);
+        this->y = axis.y * sin(theta);
+        this->z = axis.z * sin(theta);
+
+        return *this;
+    }
+
+
     Quaternion Quaternion::Inverse() const
     {
         Quaternion nq;
@@ -129,11 +163,93 @@ namespace ns3
     }
 
 
+    double Quaternion::Norm() const
+    {
+        return sqrt( w*w + x*x + y*y + z*z );
+    }
+
+
     std::ostream& operator<<(std::ostream& out, const Quaternion &quat)
     {
         return out << "( w: " << quat.w << " , x: " << quat.x << ", y: " << quat.y << ", z: " << quat.z << " )"; 
     }
 
+
+    TypeId LVLHReference::GetTypeId()
+    {
+        static TypeId tid = TypeId()
+            .SetParent<Object>()
+            .AddConstructor<LVLHReference>()
+        ;
+        return tid;
+    }
+
+
+//  BEGIN: LVLHReference +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+    LVLHReference::LVLHReference()
+    : m_ex(1, 0, 0)
+    , m_ey(0, 1, 0)
+    , m_ez(0, 0, 1)
+    {
+    }
+
+
+    LVLHReference::~LVLHReference()
+    {
+    }
+
+
+    void LVLHReference::UpdateLocalReference(const Vector &position, const Vector &velocity)
+    {
+        NS_ASSERT_MSG(velocity.GetLength() > 0, "The Velocity Vector cannot be (0, 0, 0)!");
+
+        if (position.GetLength() == 0)
+        {
+            m_hr.x = 0;
+            m_hr.y = 0;
+            m_hr.z = 1;
+            m_origin = Vector(0, 0, 0);
+        }
+        else
+        {
+            m_hr = Normalize(position);
+            m_origin = position;
+        }
+
+        m_hl = Normalize(CrossProduct(position, velocity));
+        m_ht = Normalize(CrossProduct(m_hl, m_hr));
+
+
+        m_t1 = Quaternion().FromVectors(m_hr, m_ez);
+
+        if (m_t1.Norm() == 0)
+        {
+            m_t1 = Quaternion().FromVectors(m_ht, m_ex);
+        }
+        else
+        {
+            Vector ht_p = m_t1.RotateVector(m_ht);
+            m_t2 = Quaternion().FromVectors(ht_p, m_ex);
+        }
+    }
+
+
+    Vector LVLHReference::ToWorldSpace(const Vector &vec) const
+    {
+        Vector vp = vec - m_origin;
+
+        if (m_t1.Norm() == 0) return vp;
+        vp = m_t1.RotateVector(vp);
+
+        if (m_t2.Norm() == 0) return vp;
+        return m_t2.RotateVector(vp);
+    }
+
+
+
+//  BEGIN: OrientationTransformationHelper +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
     OrientationTransformationHelper::OrientationTransformationHelper()
@@ -154,44 +270,7 @@ namespace ns3
     }
 
 
-    TypeId LVLHReference::GetTypeId()
-    {
-        static TypeId tid = TypeId()
-            .SetParent<Object>()
-            .AddConstructor<LVLHReference>()
-        ;
-        return tid;
-    }
-
-
-    LVLHReference::LVLHReference()
-    {
-    }
-
-
-    LVLHReference::~LVLHReference()
-    {
-    }
-
-
-    void LVLHReference::UpdateLocalReference(const Vector &position, const Vector &velocity)
-    {
-        NS_ASSERT_MSG(velocity.GetLength() > 0, "The Velocity Vector cannot be (0, 0, 0)!");
-
-        if (position.GetLength() == 0)
-        {
-            m_hr.x = 0;
-            m_hr.y = 0;
-            m_hr.z = 1;
-        }
-        else
-        {
-            m_hr = Normalize(position);
-        }
-
-        m_hl = Normalize(CrossProduct(position, velocity));
-        m_ht = Normalize(CrossProduct(m_hl, m_hr));
-    }
+    
 
     
     Vector OrientationTransformationHelper::Yaw(const Vector &vec, const Vector &axis) const

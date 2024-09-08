@@ -18,10 +18,10 @@ int main( int argc, char* argv[] )
 {
     LogComponentEnable("SatelliteISLTerminal", LOG_LEVEL_ALL);
 
-    Vector p1(0, 0, 3);
-    Vector p2(3 * sin(M_PI / 4.0), 3 * cos(M_PI / 4.0), 3);
+    Vector p1(3, 3, 3);
+    Vector p2(3, 0, 6); //p2(3 * sin(M_PI / 4.0), 3 * cos(M_PI / 4.0), 3);
 
-    Vector v1(-1, 0, 0);
+    Vector v1(0, -1, -1);
     //Vector v2(-1, 0, 0);
 
     printf("a: %.02f\n", ConvertTheta(200));
@@ -61,13 +61,13 @@ int main( int argc, char* argv[] )
 
 
     printf("\n\nNORTH:\n");
-    tn->GetRelativeAngle(diff);
+    tn->GetRelativeAngles(p2);
     printf("\n\nEAST:\n");
-    te->GetRelativeAngle(diff);
+    te->GetRelativeAngles(p2);
     printf("\n\nSOUTH:\n");
-    ts->GetRelativeAngle(diff);
+    ts->GetRelativeAngles(p2);
     printf("\n\nWEST:\n");
-    tw->GetRelativeAngle(diff);
+    tw->GetRelativeAngles(p2);
 
     // Vector qr_v = orien.Rotate(dir, rot);
 

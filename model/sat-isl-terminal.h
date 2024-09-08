@@ -37,17 +37,6 @@ typedef enum {
 
 
 
-// typedef struct {
-//     double x;
-//     double y;
-//     double z;
-//     double w;
-// } Quaternion_t;
-
-
-
-
-
 class OrientationHelper
 {
 public:
@@ -236,15 +225,20 @@ public:
     bool IsReady() const;
 
 
-    double GetRelativeAngle(const Vector &vec) const;
+    /**
+     * @brief Get Azimuth and Inclination Angles for a Satellite Position
+     *        relative to the Terminal Orientation
+     * 
+     *        The Angles can be used with AntennaModel
+     * 
+     * @param satpos    Other Satellite Position
+     * @return Angles   (Azimuth, Inclination)
+     */
+    Angles GetRelativeAngles(const Vector &satpos) const;
 
-    double GetRelativeAngleDeg(const Vector &vec) const;
+
 
     Ptr<SatelliteISLNetDevice> GetNetDevice() const;
-
-
-    void test(Ptr<SatelliteISLTerminal> other);
-
 
 
 private:
