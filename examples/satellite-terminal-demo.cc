@@ -110,7 +110,7 @@ static void calc_orientation(simpram_t *pram)
     //CalcAoA(pram->sat1, pram->sat2);
     //CalcAoD(pram->sat1, pram->sat2);
 
-    pram->t1->test(pram->t2);
+    //pram->t1->test(pram->t2);
 
 }
 

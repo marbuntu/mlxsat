@@ -28,12 +28,6 @@ namespace ns3
 
 
 
-class SatelliteISLTerminal
-{
-
-}; /* SatelliteISLTerminal */
-
-
 /**
  * @brief 
  */

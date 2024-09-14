@@ -126,10 +126,10 @@ namespace ns3
     public:
 
         static TypeId GetTypeId();
+        TypeId GetInstanceTypeId() const;
 
         LVLHReference();
         ~LVLHReference();
-
 
 
         void SetWorldReference(const Vector &unit_x, const Vector &unit_y, const Vector &unit_z);

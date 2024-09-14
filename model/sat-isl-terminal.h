@@ -16,13 +16,14 @@
 
 
 #include "ns3/object.h"
-
+#include "ns3/mac48-address.h"
 #include "ns3/antenna-model.h"
 #include "ns3/mobility-model.h"
-#include "ns3/sat-isl-net-device.h"
-#include "ns3/sat-isl-channel.h"
-
 #include "ns3/orientation-helper.h"
+#include "ns3/data-rate.h"
+#include "ns3/net-device.h"
+#include "ns3/packet.h"
+#include "ns3/propagation-loss-model.h"
 
 
 namespace ns3
@@ -34,59 +35,6 @@ typedef enum {
     TxOnly,
     RxTx
 } SatISLTerminalMode_t;
-
-
-
-class OrientationHelper
-{
-public:
-
-    OrientationHelper();
-    ~OrientationHelper();
-
-    bool IsParallel(Vector vec1, Vector vec2, double tolerance) const;
-    bool IsAntiParallel(Vector vec1, Vector vec2, double tolerance) const;
-
-    bool UpdateOrientation(const Vector &position, const Vector &velocitiy);
-
-    double CalculateOrientationAngle(const Vector &vec) const;
-
-    Vector RadialComponent() const;
-    Vector OrbitalComponent() const;
-    Vector OrthorgonalComponent() const;
-
-    // Vector Rotate(const Vector &vec) const;
-
-//     Vector Rotate(const Vector &vec, const Quaternion_t &quat) const;
-
-//     Quaternion_t RotationToQuaternion(const Vector &vec, double theta) const;
-    
-    Vector Normalized(const Vector &vec) const;
-
-protected:
-
-
-//     Vector RotateVector(const Vector &vec, const Quaternion_t &quat) const;
-//     Quaternion_t RotationFromVectors(const Vector &v1, const Vector &v2) const;
-
-
-private:
-
-    double m_w;
-    double m_x;
-    double m_y;
-    double m_z;
-
-    Vector m_rot;
-
-    Vector m_hr;
-    Vector m_hl;
-    Vector m_ht;
-
-
-};  /* OrientationHelper */
-
-
 
 
 /**
@@ -197,23 +145,23 @@ public:
     void SetCenterFrequency(double fc);
 
 
-    /**
-     * @brief Setup the Terminal to use an internal NetDevice
-     * 
-     * @param channel 
-     * @param mobility 
-     * 
-     */
-    void SetupInternalInterface(Ptr<SatelliteISLChannel> channel, Ptr<MobilityModel> mobility, Mac48Address address);
+    // /**
+    //  * @brief Setup the Terminal to use an internal NetDevice
+    //  * 
+    //  * @param channel 
+    //  * @param mobility 
+    //  * 
+    //  */
+    // void SetupInternalInterface(Ptr<SatelliteISLChannel> channel, Ptr<MobilityModel> mobility, Mac48Address address);
 
 
-    /**
-     * @brief Setup the Terminal to use an already setup, shared NetDevice
-     * 
-     * @param device 
-     * 
-     */
-    void SetupSharedInterface(Ptr<SatelliteISLNetDevice> device);
+    // /**
+    //  * @brief Setup the Terminal to use an already setup, shared NetDevice
+    //  * 
+    //  * @param device 
+    //  * 
+    //  */
+    // void SetupSharedInterface(Ptr<SatelliteISLNetDevice> device);
 
 
     /**
@@ -238,7 +186,21 @@ public:
 
 
 
-    Ptr<SatelliteISLNetDevice> GetNetDevice() const;
+    DataRate GetRateEstimation(const Ptr<MobilityModel> self, Ptr<MobilityModel> other, const Ptr<PropagationLossModel> loss) const;
+
+    /**
+     * @brief   Transmit Packet to other Satellite
+     * 
+     * @param pck 
+     * @param src 
+     * @param dst 
+     * @param chn 
+     * @return Time     TxTime 
+     */
+    Time Transmit(Ptr<Packet> pck,Ptr<NetDevice> src, Ptr<NetDevice> dst, Ptr<Channel> chn);
+
+
+    // Ptr<SatelliteISLNetDevice> GetNetDevice() const;
 
 
 private:
@@ -248,7 +210,7 @@ private:
     bool m_updateOrientation;
 
     /** The Netdevice has access to the channel and mobility model */
-    Ptr<SatelliteISLNetDevice> m_netitf;
+    //Ptr<SatelliteISLNetDevice> m_netitf;
 
     // Ptr<MobilityModel> m_mobility;
     // Ptr<SatelliteISLChannel> m_channel;
@@ -272,10 +234,13 @@ private:
     bool        m_dopplerMitigation;
 
 
+    Ptr<PropagationLossModel> m_lossModel;
 
-    Ptr<FriisPropagationLossModel> _getPropagationLossModel() const;
-    Ptr<MobilityModel> _getMobilityModel() const;
-    Ptr<Channel> _getChannelModel() const;
+
+
+    // Ptr<FriisPropagationLossModel> _getPropagationLossModel() const;
+    // Ptr<MobilityModel> _getMobilityModel() const;
+    // Ptr<Channel> _getChannelModel() const;
 
 
 }; /* SatelliteISLTerminal */

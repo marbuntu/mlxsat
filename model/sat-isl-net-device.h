@@ -24,6 +24,8 @@
 #include "ns3/queue-fwd.h"
 #include "ns3/traced-callback.h"
 
+#include "ns3/sat-isl-terminal.h"
+
 #include <stdint.h>
 #include <string>
 
@@ -31,6 +33,7 @@ namespace ns3
 {
 
 class SatelliteISLChannel;
+class SatelliteISLTerminal;
 class ErrorModel;
 
 
@@ -98,6 +101,18 @@ public:
     Mac48Address GetMacAddress() const;
 
 
+    /**
+     * @brief Register new Terminal to this NetDevice
+     * 
+     * @param terminal  New ISL Terminal
+     */
+    void RegisterISLTerminal(const Ptr<SatelliteISLTerminal> terminal);
+
+
+    Ptr<SatelliteISLTerminal> GetISLTerminal(const size_t id) const;
+
+
+
     // inherited from NetDevice base class.
     void SetIfIndex(const uint32_t index) override;
     uint32_t GetIfIndex() const override;
@@ -159,6 +174,7 @@ private:
     void FinishTransmission(Ptr<Packet> packet);
 
 
+    LVLHReference m_reflocal;
 
     Ptr<SatelliteISLChannel> m_channel;
     Ptr<Node> m_node;
@@ -172,6 +188,7 @@ private:
     uint16_t m_mtu;                             //!< MTU
     uint32_t m_ifIndex;                         //!< Interface index
     Ptr<Queue<Packet>> m_queue;                 //!< The Queue for outgoing packets.
+    //Ptr<Queue<SatelliteISLSignal>> m_queue;
 
     bool m_linkUp;                              //!< Indicator - link up / down
     EventId m_finishTransmissionEvent;            //!< the Tx Complete event
@@ -201,6 +218,10 @@ private:
      * \see class CallBackTraceSource
      */
     TracedCallback<Ptr<const Packet>> m_phyRxDropTrace;
+
+
+
+    std::vector <Ptr<SatelliteISLTerminal>> m_terminals;
 
 };
 

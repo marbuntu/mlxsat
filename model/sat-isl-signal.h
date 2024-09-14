@@ -60,6 +60,13 @@ public:
     ~SatelliteISLSignal();
 
 
+    // void SetPacket(const Ptr<Packet> pck);
+
+    // void SetSrcNode(const Ptr<Node> scr);
+
+    // void SetDstNode(const Ptr<Node> dst);
+
+
 
     double m_fc;            // Center Frequency
     double m_relVelocity;   // Relative Speed between nodes
@@ -69,6 +76,9 @@ public:
 
 
 private:
+
+    // Ptr<Node> m_dst;
+    // Ptr<Node> m_src;
 
 
 };  /* SatelliteISLSignal */

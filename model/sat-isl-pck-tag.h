@@ -80,7 +80,6 @@ private:
     Mac48Address m_dst;        //!< destination address
     uint16_t m_proto;          //!< protocol number
 
-
 };  /* ISLPacketTag */
 
 

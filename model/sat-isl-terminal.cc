@@ -17,140 +17,17 @@
 #include "ns3/enum.h"
 #include "ns3/boolean.h"
 #include "ns3/double.h"
+#include "ns3/node.h"
 #include "ns3/vector-extensions.h"
-
+#include "ns3/sat-isl-pck-tag.h"
+#include "ns3/sat-isl-channel.h"
+#include "ns3/satellite-const-variables.h"
 
 namespace ns3
 {
 
     NS_LOG_COMPONENT_DEFINE("SatelliteISLTerminal");
     NS_OBJECT_ENSURE_REGISTERED(SatelliteISLTerminal);
-
-
-
-    OrientationHelper::OrientationHelper()
-    {
-    }
-
-
-    OrientationHelper::~OrientationHelper()
-    {
-    }
-
-
-    bool OrientationHelper::UpdateOrientation(const Vector &position, const Vector &velocity)
-    {
-        NS_LOG_FUNCTION(this << position << velocity);
-
-
-
-        return true;
-    }
-
-
-    Vector OrientationHelper::RadialComponent() const
-    {
-        return m_hr;
-    }
-
-
-    Vector OrientationHelper::OrthorgonalComponent() const
-    {
-        return m_hl;
-    }
-
-
-    Vector OrientationHelper::OrbitalComponent() const
-    {
-        return m_ht;
-    }
-
-
-    // Quaternion_t OrientationHelper::RotationToQuaternion(const Vector &vec, double theta) const
-    // {
-    //     NS_LOG_FUNCTION(this << vec << theta);
-
-    //     Vector nrm = Normalized(vec);
-    //     double half_theta = 0.5 * theta;
-
-    //     Quaternion_t quat =
-    //     {
-    //         .x = nrm.x * sin(half_theta),
-    //         .y = nrm.y * sin(half_theta),
-    //         .z = nrm.z * sin(half_theta),
-    //         .w = cos(half_theta)
-    //     };
-
-    //     return quat;
-    // }
-
-
-    // double OrientationHelper::CalculateOrientationAngle(const Vector &vec) const
-    // {
-    //     NS_LOG_FUNCTION(this << DotProduct(m_rot, vec) << vec);
-
-    //     Vector vn = Normalized(vec);
-    //     return acos(DotProduct(m_rot, vn));
-    // }
-
-
-    Vector OrientationHelper::Normalized(const Vector &vec) const
-    {
-        //return (vec * ( 1.0f / vec.GetLength()));
-        double N = 1 / vec.GetLength();
-        return Vector(vec.x * N, vec.y * N, vec.z * N);
-    }
-
-
-    // Vector OrientationHelper::RotateVector(const Vector& vec, const Quaternion_t &quat) const
-    // {
-    //     // Extract the vector part of the quaternion
-    //     Vector u(quat.x, quat.y, quat.z);
-
-    //     // Extract the scalar part of the quaternion
-    //     double s = quat.w;
-
-    //     // Do the math
-    //     Vector vprime = 2.0 * DotProduct(u, vec) * u + ( s*s - DotProduct(u, u)) * vec + 2.0 * s * CrossProduct(u, vec);
-        
-    //     // 2.0f * DotProduct(u, vec) * u
-    //     //    + (s*s - DotProduct(u, u)) * vec
-    //     //    + 2.0f * s * CrossProduct(u, vec);
-
-    //     return vprime;
-    // }
-
-
-    // Vector OrientationHelper::Rotate(const Vector &vec, const Quaternion_t &quat) const
-    // {
-    //     NS_LOG_FUNCTION(this << vec);
-
-    //     return RotateVector(vec, quat);
-    // }
-
-
-    // Quaternion_t OrientationHelper::RotationFromVectors(const Vector &v1, const Vector &v2) const
-    // {
-    //     Quaternion_t quat = {.x = 0, .y = 0, .z = 0, .w = 0};
-
-    //     Vector u1 = Normalized(v1);
-    //     Vector u2 = Normalized(v2);
-
-    //     Vector cross = CrossProduct(u1, u2);
-    //     double dot = DotProduct(u1, u2);
-
-
-    //     Vector axis = Normalized(cross);
-    //     double half_theta = acos(dot) / 2.0;
-    //     double sine_htheta = sin(half_theta);
-
-    //     quat.x = axis.x * sine_htheta;
-    //     quat.y = axis.y * sine_htheta;
-    //     quat.z = axis.z * sine_htheta;
-    //     quat.w = cos(half_theta);
-
-    //     return quat;
-    // }
 
 
 
@@ -235,26 +112,10 @@ namespace ns3
     }
 
 
-    Ptr<MobilityModel> SatelliteISLTerminal::GetParentMobility() const
-    {
-        NS_LOG_FUNCTION(this);
-        return m_netitf->GetObject<MobilityModel>();
-    }
-
-
-    // void SatelliteISLTerminal::SetRelativeOrientation(Angles orientation)
+    // Ptr<MobilityModel> SatelliteISLTerminal::GetParentMobility() const
     // {
-    //     NS_LOG_FUNCTION(this << orientation);
-    //     //m_orientation = orientation;
-    // }
-
-
-    // void SatelliteISLTerminal::SetRelativeOrientation(const Vector &orientation)
-    // {
-    //     NS_LOG_FUNCTION(this << orientation);
-
-
-    //     //m_orientation = quat;
+    //     NS_LOG_FUNCTION(this);
+    //     return m_netitf->GetObject<MobilityModel>();
     // }
 
 
@@ -274,26 +135,22 @@ namespace ns3
 
 
 
-    Vector SatelliteISLTerminal::GetOrientation() const
-    {
+    // Vector SatelliteISLTerminal::GetOrientation() const
+    // {
         
-        Vector nullvec = Vector(0, 0, 0);
+    //     Vector nullvec = Vector(0, 0, 0);
 
-        if (m_updateOrientation)
-        {
-            Vector sc = m_netitf->GetObject<MobilityModel>()->GetVelocity();
+    //     if (m_updateOrientation)
+    //     {
+    //         Vector sc = m_netitf->GetObject<MobilityModel>()->GetVelocity();
 
-            if (sc.GetLength() == 0) return nullvec;
+    //         if (sc.GetLength() == 0) return nullvec;
 
-            NS_LOG_FUNCTION(this << sc);
+    //         NS_LOG_FUNCTION(this << sc);
+    //     }
 
-            
-
-        }
-
-
-        return nullvec;
-    }
+    //     return nullvec;
+    // }
 
 
     void SatelliteISLTerminal::SetCenterFrequency(double fc)
@@ -303,32 +160,32 @@ namespace ns3
     }
 
 
-    bool SatelliteISLTerminal::IsLinkUp(Mac48Address dst) const
-    {
-        NS_LOG_FUNCTION(this << dst);
+    // bool SatelliteISLTerminal::IsLinkUp(Mac48Address dst) const
+    // {
+    //     NS_LOG_FUNCTION(this << dst);
 
 
-        // Check if the Device is attached to the same Channel
-        Ptr<SatelliteISLChannel> chn = StaticCast<SatelliteISLChannel>(m_netitf->GetChannel());
-        Ptr<NetDevice> dev = chn->GetDevice(dst);
+    //     // Check if the Device is attached to the same Channel
+    //     Ptr<SatelliteISLChannel> chn = StaticCast<SatelliteISLChannel>(m_netitf->GetChannel());
+    //     Ptr<NetDevice> dev = chn->GetDevice(dst);
 
-        Ptr<MobilityModel> mob_rx = dev->GetObject<MobilityModel>();
+    //     Ptr<MobilityModel> mob_rx = dev->GetObject<MobilityModel>();
 
-        double dist = m_netitf->GetObject<MobilityModel>()->GetDistanceFrom(mob_rx);
+    //     double dist = m_netitf->GetObject<MobilityModel>()->GetDistanceFrom(mob_rx);
 
-        NS_LOG_UNCOND(dist);
+    //     NS_LOG_UNCOND(dist);
 
-        if (dev == nullptr) return false;
+    //     if (dev == nullptr) return false;
 
-        GetOrientation();
+    //     GetOrientation();
 
-        if (m_ttype == PointToPoint) return true;
+    //     if (m_ttype == PointToPoint) return true;
 
-        // \todo Calculate the direction, distance and received power to see of the link is available.
+    //     // \todo Calculate the direction, distance and received power to see of the link is available.
 
 
-        return false;
-    }
+    //     return false;
+    // }
 
 
     bool SatelliteISLTerminal::IsReady() const
@@ -337,38 +194,38 @@ namespace ns3
     }
 
 
-    void SatelliteISLTerminal::SetupInternalInterface(Ptr<SatelliteISLChannel> channel, Ptr<MobilityModel> mobility, Mac48Address address)
-    {
-        NS_LOG_FUNCTION(this << channel << mobility << address);
+    // void SatelliteISLTerminal::SetupInternalInterface(Ptr<SatelliteISLChannel> channel, Ptr<MobilityModel> mobility, Mac48Address address)
+    // {
+    //     NS_LOG_FUNCTION(this << channel << mobility << address);
 
-        NS_ASSERT_MSG(channel, "Parameter channel is nullptr");
-        NS_ASSERT_MSG(mobility, "Parameter mobility is nullptr");
+    //     NS_ASSERT_MSG(channel, "Parameter channel is nullptr");
+    //     NS_ASSERT_MSG(mobility, "Parameter mobility is nullptr");
 
-        m_netitf = CreateObject<SatelliteISLNetDevice>();
-        m_netitf->SetAddress(address);
-        m_netitf->SetChannel(channel);
-        m_netitf->AggregateObject(mobility);
+    //     m_netitf = CreateObject<SatelliteISLNetDevice>();
+    //     m_netitf->SetAddress(address);
+    //     m_netitf->SetChannel(channel);
+    //     m_netitf->AggregateObject(mobility);
 
-        m_setup = true;
-    }
+    //     m_setup = true;
+    // }
 
 
-    void SatelliteISLTerminal::SetupSharedInterface(Ptr<SatelliteISLNetDevice> device)
-    {
-        NS_LOG_FUNCTION(this << device);
+    // void SatelliteISLTerminal::SetupSharedInterface(Ptr<SatelliteISLNetDevice> device)
+    // {
+    //     NS_LOG_FUNCTION(this << device);
 
-        NS_ASSERT_MSG(device != nullptr, "Parameter is nullptr");
-        NS_ASSERT_MSG(device->GetChannel(), "Cannot assign NetDevice without aggregated Channel!");
-        NS_ASSERT_MSG(device->GetObject<MobilityModel>(), "Cannot assign NetDevice without aggregated Mobility Model!");
+    //     NS_ASSERT_MSG(device != nullptr, "Parameter is nullptr");
+    //     NS_ASSERT_MSG(device->GetChannel(), "Cannot assign NetDevice without aggregated Channel!");
+    //     NS_ASSERT_MSG(device->GetObject<MobilityModel>(), "Cannot assign NetDevice without aggregated Mobility Model!");
         
-        m_netitf = device;
-    }
+    //     m_netitf = device;
+    // }
 
 
-    Ptr<SatelliteISLNetDevice> SatelliteISLTerminal::GetNetDevice() const
-    {
-        return m_netitf;
-    }
+    // Ptr<SatelliteISLNetDevice> SatelliteISLTerminal::GetNetDevice() const
+    // {
+    //     return m_netitf;
+    // }
 
 
     void SatelliteISLTerminal::SetAntennaModel(Ptr<AntennaModel> antenna)
@@ -406,11 +263,85 @@ namespace ns3
         // NS_LOG_FUNCTION(this << rev);
         NS_LOG_FUNCTION(this << "Azi: " << RadiansToDegrees(ang.GetAzimuth()) << " Inc: " << RadiansToDegrees(ang.GetInclination()));
 
-        double cp = acos(DotProduct(ptd, Normalize(satpos)));
-
-        NS_LOG_FUNCTION(this << "Vec: " << ptd << " Dot. " << RadiansToDegrees(cp));
-
         return ang;
+    }
+
+
+    DataRate SatelliteISLTerminal::GetRateEstimation(const Ptr<MobilityModel> self, Ptr<MobilityModel> other, const Ptr<PropagationLossModel> loss) const
+    {
+        double fc = 10e9;
+        double B = fc * 0.02;
+
+
+        NS_LOG_FUNCTION(this << m_ref);
+
+        Vector rev = m_ref->ToWorldSpace(other->GetPosition());
+
+        NS_LOG_FUNCTION(this << rev);
+
+        Ptr<FriisPropagationLossModel> lossm = StaticCast<FriisPropagationLossModel>(loss);
+
+        lossm->SetFrequency(fc);
+        double loss_dbm = lossm->CalcRxPower(0, self, other);
+
+        NS_LOG_FUNCTION(this << loss_dbm << " dBm");
+
+
+        Angles ant_angles = GetRelativeAngles(other->GetPosition());
+
+        double ant_gain = m_antenna->GetGainDb(ant_angles);
+        
+
+        NS_LOG_FUNCTION(this << ant_gain << " dB");
+
+
+        double kBT = SatConstVariables::BOLTZMANN_CONSTANT * 1000.0 * B;
+
+        double S = std::pow(10.0, 0.1 * ((loss_dbm + ant_gain) - 30.0));
+
+        double rate = B * log2(1 + (S / kBT));
+
+        NS_LOG_FUNCTION(this << S << " sig " << rate << " bps");
+
+
+        return DataRate(rate);
+    }
+
+
+
+    Time SatelliteISLTerminal::Transmit(Ptr<Packet> pck,Ptr<NetDevice> src_dev, Ptr<NetDevice> other, Ptr<Channel> chn)
+    {
+        NS_LOG_FUNCTION(this << pck << other);
+
+        Ptr<SatelliteISLChannel> sat_chn = StaticCast<SatelliteISLChannel>(chn);
+
+        Ptr<MobilityModel> other_mob = other->GetNode()->GetObject<MobilityModel>();
+        Ptr<MobilityModel> self_mob = src_dev->GetNode()->GetObject<MobilityModel>();
+
+        if (other_mob == nullptr || self_mob == nullptr)
+        {
+            NS_LOG_FUNCTION(this << "Critical Error, No Mobility model associated!");
+            return Time(0);
+        }
+
+        Ptr<PropagationLossModel> loss = sat_chn->GetPropagationLossModel();
+
+        DataRate dr = GetRateEstimation(self_mob, other_mob, loss);
+
+        ISLPacketTag tag;
+        pck->RemovePacketTag(tag);
+
+        Mac48Address src = tag.GetSrc();
+        Mac48Address dst = tag.GetDst();
+        uint16_t proto = tag.GetProto();
+
+        sat_chn->Send(pck, proto, dst, src, src_dev);
+
+        Time txTime = dr.CalculateBytesTxTime(pck->GetSize());
+
+        txTime.GetMilliSeconds();
+
+        return txTime; 
     }
 
 

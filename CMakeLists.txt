@@ -8,6 +8,7 @@ set(source_files
     model/sat-isl-antenna.cc
     model/sat-leo-propagation-loss.cc
     model/sat-leo-delay-model.cc
+    model/sat-node.cc
     helper/groundstation-helper.cc
     helper/gsl-channel-helper.cc
     helper/walker-constellation-helper.cc
@@ -26,6 +27,7 @@ set(header_files
     model/sat-isl-antenna.h
     model/sat-leo-propagation-loss.h
     model/sat-leo-delay-model.h
+    model/sat-node.h
     helper/groundstation-helper.h
     helper/gsl-channel-helper.h
     helper/walker-constellation-helper.h
