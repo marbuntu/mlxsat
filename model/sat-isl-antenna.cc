@@ -71,11 +71,14 @@ namespace ns3
 
     double SatelliteISLAntenna::GetGainDb(Angles angles)
     {
+        NS_LOG_UNCOND("Angle: " << angles.GetAzimuth());
+
+        if (abs(angles.GetAzimuth()) > m_openingAngle) return 0;
 
         switch(m_pattern)
         {
             case RP_Cosine:
-                return m_maxGainDbi * cos(angles.GetInclination());
+                return m_maxGainDbi * cos(abs(angles.GetAzimuth()));
 
 
             case RP_Bessel:

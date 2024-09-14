@@ -248,7 +248,7 @@ namespace ns3
 
     Angles SatelliteISLTerminal::GetRelativeAngles(const Vector &satpos) const
     {
-        NS_LOG_FUNCTION(this << satpos);
+        NS_LOG_FUNCTION(this << satpos << m_ref->m_hr << m_ref->m_ht << m_ref->m_hl);
 
         // NS_LOG_FUNCTION(this << m_ref->m_t1);
         // NS_LOG_FUNCTION(this << m_ref->m_t2);
@@ -256,6 +256,8 @@ namespace ns3
         Vector ptd = m_pointingHelper.TransformVector(m_ref->m_ht, *m_ref);
 
         Vector rev = m_ref->ToWorldSpace(satpos); //m_pointingHelper.ReverseTransformVector(vec, *m_ref);
+
+        NS_LOG_FUNCTION(this << rev);
         rev = m_pointingHelper.TransformVector(rev, *m_ref);
         Angles ang = Angles(rev);
 
@@ -299,7 +301,7 @@ namespace ns3
 
         double S = std::pow(10.0, 0.1 * ((loss_dbm + ant_gain) - 30.0));
 
-        double rate = B * log2(1 + (S / kBT));
+        uint64_t rate =(uint64_t)  std::floor(B * log2(1 + (S / kBT)));
 
         NS_LOG_FUNCTION(this << S << " sig " << rate << " bps");
 
@@ -327,6 +329,11 @@ namespace ns3
         Ptr<PropagationLossModel> loss = sat_chn->GetPropagationLossModel();
 
         DataRate dr = GetRateEstimation(self_mob, other_mob, loss);
+
+        if (dr.GetBitRate() <= 0)
+        {
+            return Time(0);
+        }
 
         ISLPacketTag tag;
         pck->RemovePacketTag(tag);

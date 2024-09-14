@@ -28,7 +28,7 @@ int main( int argc, char* argv[] )
     oss << "idx\trotation\tv1\tazimuth\tinclination" << "\n";
 
 
-    Vector p1(3, 0, 3);
+    Vector p1(0, 0, 3);
     Vector p2(3, 0, 6);
 
     Ptr<CosineAntennaModel> ant = CreateObjectWithAttributes<CosineAntennaModel>(
@@ -42,23 +42,23 @@ int main( int argc, char* argv[] )
     Ptr<SatelliteISLTerminal> tw = CreateObjectWithAttributes<SatelliteISLTerminal>();
     Ptr<SatelliteISLTerminal> ts = CreateObjectWithAttributes<SatelliteISLTerminal>();
 
-    Ptr<SatelliteISLTerminal> terms[] = {tn, te, tw, ts};
+    Ptr<SatelliteISLTerminal> terms[] = {tn, te, ts, tw};
 
 
     LVLHReference ref = LVLHReference();
     
 
     tn->SetRelativeOrientation(0.0, 0.0, 0.0);
-    tn->SetLocalReference(&ref);
+    tn->SetLocalReference(Ptr<LVLHReference>(&ref));
 
     te->SetRelativeOrientation(0.0, 0.0, 90.0);
-    te->SetLocalReference(&ref);
+    te->SetLocalReference(Ptr<LVLHReference>(&ref));
 
     ts->SetRelativeOrientation(0.0, 0.0, 180.0);
-    ts->SetLocalReference(&ref);
+    ts->SetLocalReference(Ptr<LVLHReference>(&ref));
 
     tw->SetRelativeOrientation(0.0, 0.0, 270.0);
-    tw->SetLocalReference(&ref);
+    tw->SetLocalReference(Ptr<LVLHReference>(&ref));
 
     size_t N = 80;
     double step = (2.0 / N) * M_PI;
@@ -66,8 +66,10 @@ int main( int argc, char* argv[] )
     for (size_t n = 0; n < N; n++)
     {
 
-        Vector v1(0, sin(n * step), cos(n * step));
+        Vector v1(sin(n * step), cos(n * step), 0);
         ref.UpdateLocalReference(p1, v1);
+
+        NS_LOG_UNCOND("\n" << ref.m_ht);
 
         oss << n << "\t" << n * step << "\t" << v1.x << "\t" << v1.y << "\t" << v1.z << "\t";
         for (const auto &t : terms)

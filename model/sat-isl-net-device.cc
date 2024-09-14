@@ -477,8 +477,14 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
         NS_LOG_FUNCTION(this << terminal);
         
         terminal->SetLocalReference(Ptr<LVLHReference>(&m_reflocal));
-        m_terminals.push_back(terminal);
+        m_terminals.insert(m_terminals.end(), terminal);
 
+    }
+
+    Ptr<SatelliteISLTerminal> SatelliteISLNetDevice::GetISLTerminal(const size_t id) const
+    {
+        if (id > m_terminals.size()) return nullptr;
+        return m_terminals.at(id);
     }
 
 

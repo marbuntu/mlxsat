@@ -1,232 +1,204 @@
 
-
-
 #include <ns3/core-module.h>
-#include <ns3/enum.h>
-
-#include "ns3/sat-isl-terminal.h"
-#include "ns3/sat-isl-channel.h"
-#include "ns3/constant-position-mobility-model.h"
-#include "ns3/constant-velocity-mobility-model.h"
-#include "ns3/sat-leo-propagation-loss.h"
-#include "ns3/sat-isl-antenna.h"
-#include "ns3/friis-spectrum-propagation-loss.h"
-
-#include "math.h"
+#include <ns3/node-container.h>
+#include <ns3/walker-constellation-helper.h>
+#include <ns3/sat-isl-channel.h>
+#include <ns3/sat-isl-net-device.h>
+#include <ns3/sat-isl-terminal.h>
+#include <ns3/sat-isl-antenna.h>
+#include <ns3/cosine-antenna-model.h>
 
 using namespace ns3;
 
 
-//static ns3::OrientationHelperTestSuite g_Suite("mlxsat-one", "mod-example");
+
+// * 
+// *   Setup of 5 Satllite, in the following pattern
+// *
+// *     x       1       x
+// *     |       |       |
+// *     |       |       |         /
+// *     2 ----- 0 ----- 4        /||  Direction of Motion
+// *     |       |       |         ||
+// *     |       |       |         ||
+// *     x       3       x
+// *
+// *   Sat 0, 1, 3 in Orbit 2
+// *   Sat 2       in Orbit 1
+// *   Sat 4       in Orbit 3
 
 
 typedef struct {
+    NodeContainer*  nodes;
+    Ptr<Channel>        channel;
 
-    Ptr<SatelliteISLTerminal> t1;
-    Ptr<SatelliteISLTerminal> t2;
+    std::ofstream *output;
 
-    Ptr<MobilityModel> sat1;
-    Ptr<MobilityModel> sat2;
+    size_t cnt;
 
-}   simpram_t;
-
-
-// static void CreateSatellite(Ptr<SatelliteISLChannel> channel)
-// {
+} sim_params_t;
 
 
-
-// }
-
-Vector toUnitVector(Vector vec)
+static void test_transmission(sim_params_t *params)
 {
-    double len = vec.GetLength();
-    if (len != 0) {
-        return Vector(vec.x / len, vec.y / len, vec.z / len);
+
+    NodeContainer *nodes = params->nodes;
+
+    Ptr<Packet> pck = Create<Packet>(500);
+    //nodes->Get(2)->GetDevice(0)->Send(pck, nodes->Get(1)->GetDevice(0)->GetAddress(), 0);
+
+    Ptr<SatelliteISLChannel> sat_chn = StaticCast<SatelliteISLChannel>(params->channel);
+
+    // Extract Center Satellite
+    Ptr<SatelliteISLNetDevice> center = StaticCast<SatelliteISLNetDevice>(nodes->Get(0)->GetDevice(0));
+    Ptr<MobilityModel> tx_mob = nodes->Get(0)->GetObject<MobilityModel>();
+
+    Ptr<MobilityModel> sat4_mob = nodes->Get(4)->GetObject<MobilityModel>();
+
+    // Create the local Reference
+    Ptr<LVLHReference> ref = CreateObject<LVLHReference>();
+    ref->UpdateLocalReference(tx_mob->GetPosition(), tx_mob->GetVelocity());
+
+
+    *params->output << params->cnt;
+
+    // Repeat for each Terminal
+    for (size_t n = 0; n < 4; n++)
+    {
+        Ptr<SatelliteISLTerminal> ter = center->GetISLTerminal(n);
+
+        // Update Reference
+        ter->SetLocalReference(ref);
+        Angles tx_angles = ter->GetRelativeAngles(sat4_mob->GetPosition());
+
+        DataRate rate = ter->GetRateEstimation(tx_mob, sat4_mob, sat_chn->GetPropagationLossModel());
+
+        *params->output << "\t" << tx_angles.GetAzimuth() << "\t" << tx_angles.GetInclination() << "\t" << rate.GetBitRate();
     }
 
-    return Vector(0, 0, 0);
-}
-
-double vectorDotProduct(Vector vec1, Vector vec2)
-{
-    if ((vec1.GetLength() * vec2.GetLength()) == 0) return INFINITY;
-
-    return (vec1.x * vec2.x + vec1.y * vec2.y + vec1.z * vec2.z) / (vec1.GetLength() * vec2.GetLength());
-}
-
-
-/**
- * @brief   Calculate the Angle of Arrival
- * 
- * @param tx_ant    Normal Vector of the Transmit Antenna
- * @param rx_ant    Normal Vector of the Receiver Antenna
- * @return double   Azimuth Angle Phi
- */
-double CalcAoA(Vector tx_ant, Vector rx_ant)
-{
-    Vector diff = rx_ant - tx_ant;
-    return acos(diff.x / (sqrt(diff.x * diff.x + diff.y * diff.y)));
-}
-
-
-double CalcAoA(Ptr<MobilityModel> mob_tx, Ptr<MobilityModel> mob_rx)
-{
-
-    Vector un1 = toUnitVector(mob_tx->GetPosition());
-    Vector un2 = toUnitVector(mob_rx->GetPosition());
-
-    Vector ant1 = Vector(0, 0, 1);
-
-    Vector diff = un2 - un1;
-
-    NS_LOG_UNCOND(diff);
-    NS_LOG_UNCOND(vectorDotProduct(un2, un1));
-    //NS_LOG_UNCOND(Vector(diff.x * ant1.x, diff.y * ant1.y, diff.z * ant1.z));
-
-    double phi = acos(diff.x / (sqrt(diff.x * diff.x + diff.y * diff.y)));
-
-    NS_LOG_UNCOND(180 * (phi / M_PI));
-
-
-    return 0.0;
-}
-
-double CalcAoD(Ptr<MobilityModel> mob_tx, Ptr<MobilityModel> mob_rx)
-{
-    Vector v_tx = toUnitVector(mob_tx->GetVelocity());
-    Vector p_rx = toUnitVector(mob_rx->GetPosition() - mob_tx->GetPosition());
-
-    printf("DotProd:\t (x: %.02f, y: %.02f, z: %.02f) \t %.03f\n", p_rx.x, p_rx.y, p_rx.z, 90 - 180.0 * (vectorDotProduct(v_tx, p_rx) / M_PI));
-
-
-    return 0.0;
+    *params->output << "\n";
+    params->cnt++;
 }
 
 
 
-static void calc_orientation(simpram_t *pram)
+static void register_interface(Ptr<Node> node, Ptr<SatelliteISLChannel> channel)
 {
-    //CalcAoA(pram->sat1, pram->sat2);
-    //CalcAoD(pram->sat1, pram->sat2);
+    Ptr<SatelliteISLNetDevice> itf = CreateObject<SatelliteISLNetDevice>();
 
-    //pram->t1->test(pram->t2);
+    // Ptr<CosineAntennaModel> antenna = CreateObjectWithAttributes<CosineAntennaModel>(
+    //     "MaxGain", DoubleValue(100),
+    //     "VerticalBeamwidth", DoubleValue(120),
+    //     "HorizontalBeamwidth", DoubleValue(45),
+    //     "Orientation", DoubleValue(90.0)
+    // );
 
-}
-
-
-
-int main(int argc, char *argv[])
-{
-    // Enable Logging:
-    LogComponentEnable("SatelliteISLTerminal", LOG_LEVEL_ALL);
-    LogComponentEnable("SatelliteISLChannel", LOG_LEVEL_ALL);
-
-    // Create the ISL Channel
-    Ptr<SatellitePropagationLossLEO> loss = CreateObjectWithAttributes<SatellitePropagationLossLEO>();
-
-    Ptr<FriisPropagationLossModel> friis = CreateObjectWithAttributes<FriisPropagationLossModel>();
-
-    Ptr<SatelliteISLChannel> channel = CreateObject<SatelliteISLChannel>();
-    channel->SetPropagationLossModel(friis);
-
-
-    // Create Satellite 1
-    // with a predefined NetDevice:
-    Ptr<SatelliteISLNetDevice> net1 = CreateObject<SatelliteISLNetDevice>();
-    net1->SetAddress(Mac48Address::Allocate());
-
-    Ptr<SatelliteISLTerminal> t1 = CreateObjectWithAttributes<SatelliteISLTerminal>(
-        "ISLType", EnumValue(SatelliteISLTerminal::PointToPoint)
-    );
-
-    Ptr<SatelliteISLAntenna> ant1 = CreateObjectWithAttributes<SatelliteISLAntenna>(
+    Ptr<SatelliteISLAntenna> antenna = CreateObjectWithAttributes<SatelliteISLAntenna>(
         "RadiationPattern", EnumValue(SatelliteISLAntenna::RP_Cosine),
-        "MaxGainDbi", DoubleValue(25.0)
-    );
-    t1->SetAntennaModel(ant1);
-
-
-    Ptr<ConstantVelocityMobilityModel> mob1 = CreateObjectWithAttributes<ConstantVelocityMobilityModel>();
-    mob1->SetPosition(Vector(-1e3, -1e3, -1e3));
-    mob1->SetVelocity(Vector(0, 0, 10));
-
-    net1->SetChannel(channel);
-    net1->AggregateObject(mob1);
-    t1->SetupSharedInterface(net1);
-
-
-    // Create Satellite 2
-    // with auto-setup NetDevice:
-    Ptr<ConstantPositionMobilityModel> mob2 = CreateObjectWithAttributes<ConstantPositionMobilityModel>();
-    mob2->SetPosition(Vector(0, 0, 0));
-
-    Ptr<SatelliteISLTerminal> t2 = CreateObjectWithAttributes<SatelliteISLTerminal>(
-        "ISLType", EnumValue(SatelliteISLTerminal::PointToPoint)
+        "MaxGainDbi", DoubleValue(60.0),
+        "OpeningAngle", DoubleValue(120.0)
     );
 
-    t2->SetupInternalInterface(channel, mob2, Mac48Address::Allocate());
+
+    Ptr<SatelliteISLTerminal> t_north = CreateObject<SatelliteISLTerminal>();
+    t_north->SetAntennaModel(antenna);
+    t_north->SetRelativeOrientation(0, 0, 0);
+    itf->RegisterISLTerminal(t_north);
+
+    Ptr<SatelliteISLTerminal> t_east = CreateObject<SatelliteISLTerminal>();
+    t_east->SetAntennaModel(antenna);
+    t_east->SetRelativeOrientation(0, 0, 90.0);
+    itf->RegisterISLTerminal(t_east);
+
+    Ptr<SatelliteISLTerminal> t_south = CreateObject<SatelliteISLTerminal>();
+    t_south->SetAntennaModel(antenna);
+    t_south->SetRelativeOrientation(0, 0, 180.0);
+    itf->RegisterISLTerminal(t_south);
+
+    Ptr<SatelliteISLTerminal> t_west = CreateObject<SatelliteISLTerminal>();
+    t_west->SetAntennaModel(antenna);
+    t_west->SetRelativeOrientation(0, 0, 270.0);
+    itf->RegisterISLTerminal(t_west);
 
 
-    Vector or1 = Vector(0, 0, 1);
-    Angles an = Angles(or1);
+    itf->SetAddress(Mac48Address::Allocate());
+    itf->SetChannel(channel);
+    itf->SetNode(node);
+    node->AddDevice(itf);
+}
 
-//    CalcAoA(mob1, mob2);
 
-    simpram_t params = 
+
+int main(int argc, char* argv[])
+{
+    // LogComponentEnable("SatelliteISLNetDevice", LOG_LEVEL_ALL);
+    // LogComponentEnable("SatelliteISLChannel", LOG_LEVEL_ALL);
+    // LogComponentEnable("SatelliteISLTerminal", LOG_LEVEL_ALL);
+
+    // Create a Constellation and extract some satellites
+    Ptr<WalkerConstellationHelper> helper = CreateObjectWithAttributes<WalkerConstellationHelper>(
+        "Inclination", DoubleValue(66.0),
+        "NumOfSats", IntegerValue(10),
+        "NumOfOrbits", IntegerValue(10),
+        "Altitude", DoubleValue(480)
+    );
+
+    helper->Initialize();
+
+    NodeContainer nodes;
+
+
+    nodes.Add(helper->getSatellite(2 * 10 + 5)->GetObject<Node>());       // Sat 0
+    nodes.Add(helper->getSatellite(2 * 10 + 6)->GetObject<Node>());       // Sat 1
+    nodes.Add(helper->getSatellite(1 * 10 + 5)->GetObject<Node>());       // Sat 2
+    nodes.Add(helper->getSatellite(2 * 10 + 4)->GetObject<Node>());       // Sat 3
+    nodes.Add(helper->getSatellite(3 * 10 + 5)->GetObject<Node>());       // Sat 4
+
+
+    // Create Channel Model
+    Ptr<SatelliteISLChannel> channel = CreateObjectWithAttributes<SatelliteISLChannel>();
+    Ptr<FriisPropagationLossModel> loss_model = CreateObject<FriisPropagationLossModel>();
+    channel->SetPropagationLossModel(loss_model);
+
+
+    // The Constellion Helper automatically associates a Node with each Satellite
+    // So we only need to setup the corresponding Net Devices and Terminals
+
+    for (NodeContainer::Iterator it = nodes.Begin(); it != nodes.End(); it++)
     {
-        .t1 = t1,
-        .t2 = t2,
-        .sat1 = mob1,
-        .sat2 = mob2
+        register_interface(*it, channel);
+    }
+
+
+    // Setup the Simulation:
+
+    std::ofstream out("./terminal-test.txt");
+    //out << "Testing \n";
+
+    sim_params_t params = {
+        .nodes = &nodes,
+        .channel = channel,
+        .output = &out,
+        .cnt = 0
     };
 
+    size_t N = 100;
+    Time step = Seconds(60);
 
-    Time t_step = Seconds(10);
-
-    for (size_t t = 0; t < 20; t++)
+    for (size_t n = 0; n < N; n++)
     {
-        Simulator::Schedule(t_step * t, &calc_orientation, &params);
+        Simulator::Schedule(step * n, test_transmission, &params);
+    
     }
 
 
-    NS_LOG_UNCOND("\n\n Starting Simulation... \n");
-
-
+    NS_LOG_UNCOND("Starting Simulator...");
     Simulator::Run();
+
+    NS_LOG_UNCOND("Clear Simulator..");
     Simulator::Destroy();
 
-
-    /*
-    * \todo: NetDevice, Channel and Terminal must all be aggregated with each other in order to work properly
-    * else there will be a deref to nullptr error at some point!
-    */
-
-    // if(t1->IsLinkUp(Mac48Address::ConvertFrom(net2->GetAddress())))
-    // {
-    //     NS_LOG_UNCOND("Link is UP");
-    // }
-    // else
-    // {
-    //     NS_LOG_UNCOND("Link is DOWN");
-    // }
-
-
-    // t1->SetRelativeOrientation(an);
-
-
-    // if(t1->IsLinkUp(t2->GetNetDevice()->GetMacAddress()))
-    // {
-    //     NS_LOG_UNCOND("Link is UP");
-    // }
-    // else
-    // {
-    //     NS_LOG_UNCOND("Link is DOWN");
-    // }
-
-
-
-
+    out.close();
 
     return 0;
 }

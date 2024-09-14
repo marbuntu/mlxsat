@@ -176,7 +176,7 @@ namespace ns3
 
     TypeId LVLHReference::GetTypeId()
     {
-        static TypeId tid = TypeId()
+        static TypeId tid = TypeId("ns3::LVLHReference")
             .SetParent<Object>()
             .AddConstructor<LVLHReference>()
         ;
@@ -217,6 +217,7 @@ namespace ns3
     {
         NS_ASSERT_MSG(velocity.GetLength() > 0, "The Velocity Vector cannot be (0, 0, 0)!");
 
+
         if (position.GetLength() == 0)
         {
             m_hr.x = 0;
@@ -230,7 +231,7 @@ namespace ns3
             m_origin = position;
         }
 
-        m_hl = Normalize(CrossProduct(position, velocity));
+        m_hl = Normalize(CrossProduct(m_hr, Normalize(velocity)));
         m_ht = Normalize(CrossProduct(m_hl, m_hr));
 
 
