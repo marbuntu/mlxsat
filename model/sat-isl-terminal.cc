@@ -235,6 +235,12 @@ namespace ns3
     }
 
 
+    Ptr<AntennaModel> SatelliteISLTerminal::GetAntennaModel() const
+    {
+        return m_antenna;
+    }
+
+
     Vector toUnitVector(Vector vec)
     {
         double len = vec.GetLength();
@@ -266,6 +272,19 @@ namespace ns3
         NS_LOG_FUNCTION(this << "Azi: " << RadiansToDegrees(ang.GetAzimuth()) << " Inc: " << RadiansToDegrees(ang.GetInclination()));
 
         return ang;
+    }
+
+    double SatelliteISLTerminal::GetAntennaGain(const Ptr<MobilityModel> self, Ptr<MobilityModel> other) const
+    {
+        // Vector rev = m_ref->ToWorldSpace(other->GetPosition());
+
+        // NS_LOG_FUNCTION(this << rev);
+
+        Angles ant_angles = GetRelativeAngles(other->GetPosition());
+
+        double ant_gain = m_antenna->GetGainDb(ant_angles);
+    
+        return ant_gain;
     }
 
 

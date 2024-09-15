@@ -120,6 +120,8 @@ public:
     void SetAntennaModel(Ptr<AntennaModel> antenna);
 
 
+    Ptr<AntennaModel> GetAntennaModel() const;
+
     // /**
     //  * @brief Attach the Terminal to a Channel
     //  * 
@@ -184,6 +186,8 @@ public:
      */
     Angles GetRelativeAngles(const Vector &satpos) const;
 
+    
+    double GetAntennaGain(const Ptr<MobilityModel> self, Ptr<MobilityModel> other) const;
 
 
     DataRate GetRateEstimation(const Ptr<MobilityModel> self, Ptr<MobilityModel> other, const Ptr<PropagationLossModel> loss) const;

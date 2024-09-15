@@ -14,7 +14,7 @@
 #include "ns3/log.h"
 #include "ns3/enum.h"
 #include "ns3/double.h"
-
+#include "math.h"
 #include "sat-isl-antenna.h"
 
 
@@ -49,9 +49,9 @@ namespace ns3
             )
             .AddAttribute(
                 "OpeningAngle"
-                , "Opening Angle of the Antenna Aparture from 0-360 Degree"
+                , "Opening Angle of the Antenna Aparture from 0-180 Degree"
                 , DoubleValue(180.0)
-                , MakeDoubleAccessor(&SatelliteISLAntenna::m_openingAngle)
+                , MakeDoubleAccessor(&SatelliteISLAntenna::SetOpeningAngle, &SatelliteISLAntenna::GetOpeningAngle)
                 , MakeDoubleChecker<double>(0.0, 360.0)
             )
         ;
@@ -69,29 +69,52 @@ namespace ns3
     }
 
 
+    void SatelliteISLAntenna::SetOpeningAngle(double angle)
+    {
+        double half = WrapTo360(angle) * 0.5;
+        m_openingAngle = DegreesToRadians(half);
+    }
+
+
+    double SatelliteISLAntenna::GetOpeningAngle() const
+    {
+        return RadiansToDegrees(m_openingAngle);
+    }
+
+
+
     double SatelliteISLAntenna::GetGainDb(Angles angles)
     {
         NS_LOG_UNCOND("Angle: " << angles.GetAzimuth());
 
-        if (abs(angles.GetAzimuth()) > m_openingAngle) return 0;
+        
+        // if (abs(angles.GetAzimuth()) > m_openingAngle)
+        // {
+        //     NS_LOG_UNCOND("Set to neg Inf");
+        //     return std::numeric_limits<double>::infinity() * -1;
+        // }
+
+        double factor = 0.0;
 
         switch(m_pattern)
         {
             case RP_Cosine:
-                return m_maxGainDbi * cos(abs(angles.GetAzimuth()));
-
+                factor = std::cos(abs(angles.GetAzimuth()));
+                break;
 
             case RP_Bessel:
-                return m_maxGainDbi;
-
+                factor = m_maxGainDbi;
+                break;
 
             case RP_Constant:
-                return m_maxGainDbi;
-
+                factor = m_maxGainDbi;
+                break;
         }
 
 
-        return 0;
+        double gainDb = (10 * std::log10(factor)) + m_maxGainDbi;
+
+        return gainDb;
     }
 
 

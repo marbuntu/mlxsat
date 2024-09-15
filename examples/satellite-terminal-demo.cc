@@ -66,14 +66,17 @@ static void test_transmission(sim_params_t *params)
     for (size_t n = 0; n < 4; n++)
     {
         Ptr<SatelliteISLTerminal> ter = center->GetISLTerminal(n);
+        Ptr<AntennaModel> ant = ter->GetAntennaModel();
 
         // Update Reference
         ter->SetLocalReference(ref);
         Angles tx_angles = ter->GetRelativeAngles(sat4_mob->GetPosition());
 
-        DataRate rate = ter->GetRateEstimation(tx_mob, sat4_mob, sat_chn->GetPropagationLossModel());
+        //DataRate rate = ter->GetAntennaGain(tx_mob, sat4_mob); //ter->GetRateEstimation(tx_mob, sat4_mob, sat_chn->GetPropagationLossModel());
+        
+        double gain = ant->GetGainDb(tx_angles);
 
-        *params->output << "\t" << tx_angles.GetAzimuth() << "\t" << tx_angles.GetInclination() << "\t" << rate.GetBitRate();
+        *params->output << "\t" << tx_angles.GetAzimuth() << "\t" << tx_angles.GetInclination() << "\t" << gain;
     }
 
     *params->output << "\n";
@@ -95,8 +98,8 @@ static void register_interface(Ptr<Node> node, Ptr<SatelliteISLChannel> channel)
 
     Ptr<SatelliteISLAntenna> antenna = CreateObjectWithAttributes<SatelliteISLAntenna>(
         "RadiationPattern", EnumValue(SatelliteISLAntenna::RP_Cosine),
-        "MaxGainDbi", DoubleValue(60.0),
-        "OpeningAngle", DoubleValue(120.0)
+        "MaxGainDbi", DoubleValue(0.0),
+        "OpeningAngle", DoubleValue(160.0)
     );
 
 
@@ -133,7 +136,7 @@ int main(int argc, char* argv[])
 {
     // LogComponentEnable("SatelliteISLNetDevice", LOG_LEVEL_ALL);
     // LogComponentEnable("SatelliteISLChannel", LOG_LEVEL_ALL);
-    // LogComponentEnable("SatelliteISLTerminal", LOG_LEVEL_ALL);
+    LogComponentEnable("SatelliteISLTerminal", LOG_LEVEL_ALL);
 
     // Create a Constellation and extract some satellites
     Ptr<WalkerConstellationHelper> helper = CreateObjectWithAttributes<WalkerConstellationHelper>(

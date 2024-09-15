@@ -50,6 +50,11 @@ namespace ns3
         double GetGainDb(Angles a);
 
 
+        void SetOpeningAngle(double angle);
+
+        double GetOpeningAngle() const;
+
+
         // void SetAntennaOrientation(const Vector &vec);
 
 
