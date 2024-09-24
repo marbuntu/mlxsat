@@ -85,14 +85,13 @@ namespace ns3
 
     double SatelliteISLAntenna::GetGainDb(Angles angles)
     {
-        NS_LOG_UNCOND("Angle: " << angles.GetAzimuth());
+        //NS_LOG_UNCOND("Angle: " << angles.GetAzimuth());
 
         
-        // if (abs(angles.GetAzimuth()) > m_openingAngle)
-        // {
-        //     NS_LOG_UNCOND("Set to neg Inf");
-        //     return std::numeric_limits<double>::infinity() * -1;
-        // }
+        if (abs(angles.GetAzimuth()) > m_openingAngle)
+        {
+            return std::numeric_limits<double>::infinity() * -1;
+        }
 
         double factor = 0.0;
 

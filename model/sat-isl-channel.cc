@@ -195,11 +195,16 @@ namespace ns3
         return hash;
     }
 
+
     Mac48Address SatelliteISLChannel::_hashToAddr(const uint64_t hash) const
     {
         Mac48Address addr;
         addr.CopyFrom((uint8_t*) &hash);
         return addr;
     }
+
+
+    
+
 
 }   /* namespace ns-3   */

@@ -269,7 +269,7 @@ namespace ns3
 
         // NS_LOG_FUNCTION(this << ptd);
         // NS_LOG_FUNCTION(this << rev);
-        NS_LOG_FUNCTION(this << "Azi: " << RadiansToDegrees(ang.GetAzimuth()) << " Inc: " << RadiansToDegrees(ang.GetInclination()));
+        //NS_LOG_FUNCTION(this << "Azi: " << RadiansToDegrees(ang.GetAzimuth()) << " Inc: " << RadiansToDegrees(ang.GetInclination()));
 
         return ang;
     }
@@ -290,35 +290,25 @@ namespace ns3
 
     DataRate SatelliteISLTerminal::GetRateEstimation(const Ptr<MobilityModel> self, Ptr<MobilityModel> other, const Ptr<PropagationLossModel> loss) const
     {
-        double fc = 10e9;
+        double fc = 40e9;
         double B = fc * 0.02;
 
-
-        NS_LOG_FUNCTION(this << m_ref);
-
-        Vector rev = m_ref->ToWorldSpace(other->GetPosition());
-
-        NS_LOG_FUNCTION(this << rev);
 
         Ptr<FriisPropagationLossModel> lossm = StaticCast<FriisPropagationLossModel>(loss);
 
         lossm->SetFrequency(fc);
-        double loss_dbm = lossm->CalcRxPower(0, self, other);
-
-        NS_LOG_FUNCTION(this << loss_dbm << " dBm");
-
+        double loss_dbm = lossm->CalcRxPower(45, self, other);
 
         Angles ant_angles = GetRelativeAngles(other->GetPosition());
 
         double ant_gain = m_antenna->GetGainDb(ant_angles);
         
 
-        NS_LOG_FUNCTION(this << ant_gain << " dB");
-
-
         double kBT = SatConstVariables::BOLTZMANN_CONSTANT * 1000.0 * B;
 
-        double S = std::pow(10.0, 0.1 * ((loss_dbm + ant_gain) - 30.0));
+        double S = std::pow(10.0, 0.1 * (((loss_dbm + ant_gain)))); //- 30.0)));
+
+        NS_LOG_FUNCTION(this << loss_dbm << "\t" << ant_gain << "\t" << 10 * std::log10(S / kBT));
 
         uint64_t rate =(uint64_t)  std::floor(B * log2(1 + (S / kBT)));
 

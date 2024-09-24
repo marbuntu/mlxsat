@@ -79,6 +79,9 @@ public:
     Ptr<NetDevice> GetDevice(const Mac48Address addr) const;
 
 
+    double EstimateGain(const Ptr<MobilityModel> tx_mob, const Ptr<MobilityModel> rx_mob, double fc) const;
+
+
 
 private:
 
