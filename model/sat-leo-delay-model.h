@@ -1,10 +1,10 @@
 /**
- * @brief   HEADER TEMPLATE
+ * @brief   Delay Model for Inter-Satellite-Links in LEO Constellations
  * 
- * @file    _template.h
+ * @file    sat-leo-delay-model.h
  * @author  M. Anschuetz (martin.anschuetz@vert-tec.io)
  * @version 1.0
- * @date    2024-07-18
+ * @date    2024-07-24
  * 
  * @copyright Copyright (c) 2024
  * 

@@ -26,13 +26,13 @@ namespace ns3
     }
 
 
-    NetDeviceContainer SatelliteISLHelper::Install(Ptr<Node> node, Ptr<SatelliteStaticISLChannel> channel) const
+    NetDeviceContainer SatelliteISLHelper::Install(Ptr<Node> node, Ptr<SatelliteISLChannel> channel) const
     {
         return NetDeviceContainer(InstallPriv(node, channel));
     }
 
 
-    Ptr<NetDevice> SatelliteISLHelper::InstallPriv(Ptr<Node> node, Ptr<SatelliteStaticISLChannel> channel) const
+    Ptr<NetDevice> SatelliteISLHelper::InstallPriv(Ptr<Node> node, Ptr<SatelliteISLChannel> channel) const
     {
         Ptr<SatelliteISLNetDevice> device = m_deviceFactory.Create<SatelliteISLNetDevice>();
         return device;

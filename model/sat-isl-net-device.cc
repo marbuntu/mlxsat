@@ -12,7 +12,7 @@
 
 
 #include "sat-isl-net-device.h"
-#include "sat-static-isl-channel.h"
+#include "sat-isl-channel.h"
 #include "sat-isl-pck-tag.h"
 
 #include "ns3/simulator.h"
@@ -81,6 +81,7 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
     , m_recErrModel(nullptr)
     {
         NS_LOG_FUNCTION(this);
+        m_refLVLH = CreateObject<LVLHReference>();
     }
 
 
@@ -125,7 +126,7 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
     }
 
 
-    void SatelliteISLNetDevice::SetChannel(Ptr<SatelliteStaticISLChannel> channel)
+    void SatelliteISLNetDevice::SetChannel(Ptr<SatelliteISLChannel> channel)
     {
         NS_LOG_FUNCTION(this << channel);
         m_channel = channel;
@@ -302,6 +303,13 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
 
         Mac48Address mac_dst = Mac48Address::ConvertFrom(dst);
         Mac48Address mac_src = Mac48Address::ConvertFrom(src);
+        Ptr<NetDevice> dev_dst = m_channel->GetDevice(mac_dst);
+
+        if (dev_dst == nullptr)
+        {
+            NS_LOG_FUNCTION(this << "Destination Node is not attached to this Channel!");
+            return false;
+        } 
 
         ISLPacketTag tag;
         tag.SetSrc(mac_src);
@@ -309,6 +317,7 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
         tag.SetProto(protocolNumber);
 
         pck->AddPacketTag(tag);
+
 
         if (m_queue->Enqueue(pck))
         {
@@ -331,17 +340,47 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
         }
 
         NS_ASSERT_MSG(!m_finishTransmissionEvent.IsRunning(), "Transmission already in Progress!");
-
-        Ptr<MobilityModel> mob = m_node->GetObject<MobilityModel>();
-
-        NS_LOG_FUNCTION(this << mob << mob->GetPosition());
-
+        
+        
+        // Deque Package
         Ptr<Packet> pck = m_queue->Dequeue();
 
-        DataRate rate = DataRate("1Mb/s");
-        Time txTime = rate.CalculateBytesTxTime(pck->GetSize());
+        ISLPacketTag tag;
+        if (!pck->PeekPacketTag(tag))
+        {
+            NS_LOG_FUNCTION(this << "Critical Error - No Pck Tag assigned!");
+            Simulator::Schedule(MilliSeconds(100), &SatelliteISLNetDevice::StartTransmission, this);
+            return;
+        }
 
-        m_finishTransmissionEvent = Simulator::Schedule(txTime, &SatelliteISLNetDevice::FinishTransmission, this, pck);
+
+        // Get Other MobilityModel
+        Ptr<NetDevice> other = m_channel->GetDevice(tag.GetDst());
+
+        
+        // Update Local Reference Frame
+        Ptr<MobilityModel> mob = m_node->GetObject<MobilityModel>();
+        m_refLVLH->UpdateLocalReference(mob->GetPosition(), mob->GetVelocity());
+
+
+        //m_channel->GetDevice(pck-)
+
+        // Transmitt on all registered Terminals
+
+        Time block_time = Time(0);
+
+        for (const auto& terminal : m_terminals)
+        {
+            block_time = Max(block_time, terminal->Transmit(pck, this, other, m_channel));
+        }
+
+
+        //DataRate rate = DataRate("1Mb/s");
+        //Time txTime = rate.CalculateBytesTxTime(pck->GetSize());
+
+        NS_LOG_FUNCTION(this << "block: " << block_time.GetMilliSeconds());
+
+        m_finishTransmissionEvent = Simulator::Schedule(block_time, &SatelliteISLNetDevice::FinishTransmission, this, pck);
     }
 
 
@@ -349,14 +388,14 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
     {
         NS_LOG_FUNCTION(this);
 
-        ISLPacketTag tag;
-        pck->RemovePacketTag(tag);
+        // ISLPacketTag tag;
+        // pck->RemovePacketTag(tag);
 
-        Mac48Address src = tag.GetSrc();
-        Mac48Address dst = tag.GetDst();
-        uint16_t proto = tag.GetProto();
+        // Mac48Address src = tag.GetSrc();
+        // Mac48Address dst = tag.GetDst();
+        // uint16_t proto = tag.GetProto();
 
-        m_channel->Send(pck, proto, dst, src, this);
+        // m_channel->Send(pck, proto, dst, src, this);
 
         StartTransmission();
     }
@@ -424,6 +463,45 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
         return true;
     }
 
+
+    Mac48Address SatelliteISLNetDevice::GetMacAddress() const
+    {
+        return m_address;
+    }
+
+
+    void SatelliteISLNetDevice::RegisterISLTerminal(const Ptr<SatelliteISLTerminal> terminal)
+    {
+        NS_LOG_FUNCTION(this << terminal);
+        
+        terminal->SetLocalReference(m_refLVLH);
+        m_terminals.insert(m_terminals.end(), terminal);
+
+    }
+
+    Ptr<SatelliteISLTerminal> SatelliteISLNetDevice::GetISLTerminal(const size_t id) const
+    {
+        if (id > m_terminals.size()) return nullptr;
+        return m_terminals.at(id);
+    }
+
+
+    void SatelliteISLNetDevice::SetLocalReference(const Ptr<LVLHReference> ref)
+    {
+        if (ref == nullptr) return;
+        m_refLVLH = ref;
+
+        for (auto &ter : m_terminals)
+        {
+            ter->SetLocalReference(ref);
+        }
+    }
+
+
+    Ptr<LVLHReference> SatelliteISLNetDevice::GetLocalReference() const
+    {
+        return m_refLVLH;
+    }
 
 
 }   /* namespace ns3 */
