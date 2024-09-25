@@ -81,8 +81,7 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
     , m_recErrModel(nullptr)
     {
         NS_LOG_FUNCTION(this);
-        //m_reflocal = CreateObject<LVLHReference>();
-        //m_reflocal->SetWorldReference(Vector(1, 0, 0), Vector(0, 1, 0), Vector(0, 0, 1));
+        m_refLVLH = CreateObject<LVLHReference>();
     }
 
 
@@ -361,7 +360,7 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
         
         // Update Local Reference Frame
         Ptr<MobilityModel> mob = m_node->GetObject<MobilityModel>();
-        m_reflocal.UpdateLocalReference(mob->GetPosition(), mob->GetVelocity());
+        m_refLVLH->UpdateLocalReference(mob->GetPosition(), mob->GetVelocity());
 
 
         //m_channel->GetDevice(pck-)
@@ -374,7 +373,6 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
         {
             block_time = Max(block_time, terminal->Transmit(pck, this, other, m_channel));
         }
-
 
 
         //DataRate rate = DataRate("1Mb/s");
@@ -476,7 +474,7 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
     {
         NS_LOG_FUNCTION(this << terminal);
         
-        terminal->SetLocalReference(Ptr<LVLHReference>(&m_reflocal));
+        terminal->SetLocalReference(m_refLVLH);
         m_terminals.insert(m_terminals.end(), terminal);
 
     }
@@ -485,6 +483,24 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
     {
         if (id > m_terminals.size()) return nullptr;
         return m_terminals.at(id);
+    }
+
+
+    void SatelliteISLNetDevice::SetLocalReference(const Ptr<LVLHReference> ref)
+    {
+        if (ref == nullptr) return;
+        m_refLVLH = ref;
+
+        for (auto &ter : m_terminals)
+        {
+            ter->SetLocalReference(ref);
+        }
+    }
+
+
+    Ptr<LVLHReference> SatelliteISLNetDevice::GetLocalReference() const
+    {
+        return m_refLVLH;
     }
 
 

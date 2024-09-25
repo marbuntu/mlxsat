@@ -63,6 +63,7 @@ public:
      */
     void Receive(Ptr<Packet> packet, uint16_t protocol, Mac48Address to, Mac48Address from);
 
+
     /**
      * Attach a channel to this net device.  This will be the
      * channel the net device sends on
@@ -72,6 +73,7 @@ public:
      */
     void SetChannel(Ptr<SatelliteISLChannel> channel);
 
+
     /**
      * Attach a queue to the SimpleNetDevice.
      *
@@ -79,12 +81,14 @@ public:
      */
     void SetQueue(Ptr<Queue<Packet>> queue);
 
+
     /**
      * Get a copy of the attached Queue.
      *
      * \returns Ptr to the queue.
      */
     Ptr<Queue<Packet>> GetQueue() const;
+
 
     /**
      * Attach a receive ErrorModel to the SimpleNetDevice.
@@ -109,8 +113,29 @@ public:
     void RegisterISLTerminal(const Ptr<SatelliteISLTerminal> terminal);
 
 
+    /**
+     * @brief Get ISL Terminal with index id
+     * 
+     * @param id 
+     * @return Ptr<SatelliteISLTerminal> 
+     */
     Ptr<SatelliteISLTerminal> GetISLTerminal(const size_t id) const;
 
+
+    /**
+     * @brief Overwrite Local Reference
+     * 
+     * @param ref 
+     */
+    void SetLocalReference(const Ptr<LVLHReference> ref);
+
+
+    /**
+     * @brief Get Local Reference
+     * 
+     * @return Ptr<LVLHReference> 
+     */
+    Ptr<LVLHReference> GetLocalReference() const;
 
 
     // inherited from NetDevice base class.
@@ -145,9 +170,26 @@ public:
     bool SupportsSendFrom() const override;
 
 
-    //bool Send(Ptr<Packet> pck, const Address& dest, uint16_t proto, Ptr<Node> dest);
+    /**
+     * @brief Get Iterator, pointing to the first Terminal ( id = 0 )
+     * 
+     * @return std::vector<Ptr<SatelliteISLTerminal>>::iterator 
+     */
+    std::vector<Ptr<SatelliteISLTerminal>>::iterator BeginTerminals()
+    {
+        return m_terminals.begin();
+    }
 
-    
+
+    /**
+     * @brief Get Iterator pointing to the last Terminal ( id = N )
+     * 
+     * @return std::vector<Ptr<SatelliteISLTerminal>>::iterator 
+     */
+    std::vector<Ptr<SatelliteISLTerminal>>::iterator EndTerminals()
+    {
+        return m_terminals.end();
+    }
 
 
 protected:
@@ -174,7 +216,7 @@ private:
     void FinishTransmission(Ptr<Packet> packet);
 
 
-    LVLHReference m_reflocal;
+    //LVLHReference m_reflocal;
 
     Ptr<SatelliteISLChannel> m_channel;
     Ptr<Node> m_node;
@@ -219,6 +261,9 @@ private:
      */
     TracedCallback<Ptr<const Packet>> m_phyRxDropTrace;
 
+
+
+    Ptr<LVLHReference> m_refLVLH;
 
 
     std::vector <Ptr<SatelliteISLTerminal>> m_terminals;

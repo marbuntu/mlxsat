@@ -14,6 +14,8 @@ set(source_files
     helper/walker-constellation-helper.cc
     helper/walker-orbit-helper.cc
     helper/sat-isl-helper.cc
+    helper/sat-isl-terminal-helper.cc
+    helper/sat-isl-interface-helper.cc
     utils/orientation-helper.cc
 )
 
@@ -33,6 +35,8 @@ set(header_files
     helper/walker-constellation-helper.h
     helper/walker-orbit-helper.h
     helper/sat-isl-helper.h
+    helper/sat-isl-terminal-helper.h
+    helper/sat-isl-interface-helper.h
     utils/orientation-helper.h
 )
 
