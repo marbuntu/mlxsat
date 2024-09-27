@@ -71,6 +71,21 @@ namespace ns3
     }
 
 
+    NetDeviceContainer SatelliteISLInterfaceHelper::Install(NodeContainer nodes, const Ptr<SatelliteISLChannel> channel) const
+    {
+        NetDeviceContainer devs;
+
+        for (NodeContainer::Iterator it = nodes.Begin(); it != nodes.End(); it++)
+        {   
+            Ptr<SatelliteISLNetDevice> itf = CreateAndAggregate(*it, channel);
+            devs.Add(itf);
+        }
+
+        return devs;
+    }
+
+
+
     SatelliteISLInterfaceHelper DefaultISLInterfaceSetup::GetDefaultFactory(setup_t setup)
     {
         switch (setup)

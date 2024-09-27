@@ -67,12 +67,6 @@ namespace ns3
     }
 
 
-    // void SatelliteISLChannel::Send(Ptr<SatelliteISLSignal> signal)
-    // {
-    //     NS_LOG_FUNCTION(this << signal);
-    // }
-
-
     void SatelliteISLChannel::Send(Ptr<Packet> pck, uint16_t protocol, Mac48Address dst, Mac48Address src, Ptr<NetDevice> sender)
     {
         /**
@@ -80,18 +74,10 @@ namespace ns3
          * 
          */
 
-        NS_LOG_FUNCTION(this << pck << protocol << dst << src << sender);
+        NS_LOG_FUNCTION(this << "\t" << pck << "\t" << protocol << "\t" << dst << "\t" << src << "\t" << sender);
 
 
-        uint64_t rx_mac;
-        dst.CopyTo((uint8_t*) &rx_mac);
-
-
-        if (auto rxd = m_devices.find(rx_mac); rxd != m_devices.end())
-        {
-            NS_LOG_FUNCTION(this << rxd->first << rxd->second->GetAddress());
-        }
-        else
+        if (!dst.IsBroadcast() && (GetDevice(dst) == nullptr))
         {
             NS_LOG_ERROR("Receiver Device not attached to this Channel!");
             return;
@@ -165,12 +151,35 @@ namespace ns3
 
     std::size_t SatelliteISLChannel::GetNDevices() const
     {
-        return 0;
+        return m_devices.size();
+    }
+
+
+    std::unordered_map<uint64_t, Ptr<SatelliteISLNetDevice>>::iterator SatelliteISLChannel::GetDevicesBegin()
+    {
+        return m_devices.begin();
+    }
+
+
+    std::unordered_map<uint64_t, Ptr<SatelliteISLNetDevice>>::iterator SatelliteISLChannel::GetDevicesEnd()
+    {
+        return m_devices.end();
     }
 
 
     Ptr<NetDevice> SatelliteISLChannel::GetDevice(std::size_t i) const
-    {
+    {   
+        if (m_devices.size() >= i) return nullptr;
+
+        auto it = m_devices.begin();
+        size_t n = 0;
+        while(it != m_devices.end())
+        {
+            if (n == i) return it->second;
+            it++;
+            n++;
+        }
+
         return nullptr;
     }
 
@@ -204,7 +213,6 @@ namespace ns3
     }
 
 
-    
 
 
 }   /* namespace ns-3   */

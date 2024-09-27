@@ -3,6 +3,7 @@ set(base_examples
     orientation-helper-demo
     satellite-node-demo
     satellite-com-model-demo
+    satellite-tcp-traffic
 )
 
 foreach(

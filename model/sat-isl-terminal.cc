@@ -259,7 +259,7 @@ namespace ns3
         // NS_LOG_FUNCTION(this << m_ref->m_t1);
         // NS_LOG_FUNCTION(this << m_ref->m_t2);
 
-        Vector ptd = m_pointingHelper.TransformVector(m_ref->m_ht, *m_ref);
+        //Vector ptd = m_pointingHelper.TransformVector(m_ref->m_ht, *m_ref);
 
         Vector rev = m_ref->ToWorldSpace(satpos); //m_pointingHelper.ReverseTransformVector(vec, *m_ref);
 
@@ -302,17 +302,17 @@ namespace ns3
         Angles ant_angles = GetRelativeAngles(other->GetPosition());
 
         double ant_gain = m_antenna->GetGainDb(ant_angles);
-        
+
+
+        if (isnan(loss_dbm) || isnan(ant_gain)) return DataRate(0);
+
 
         double kBT = SatConstVariables::BOLTZMANN_CONSTANT * 1000.0 * B;
-
         double S = std::pow(10.0, 0.1 * (((loss_dbm + ant_gain)))); //- 30.0)));
-
-        NS_LOG_FUNCTION(this << loss_dbm << "\t" << ant_gain << "\t" << 10 * std::log10(S / kBT));
-
         uint64_t rate =(uint64_t)  std::floor(B * log2(1 + (S / kBT)));
 
-        NS_LOG_FUNCTION(this << S << " sig " << rate << " bps");
+
+        NS_LOG_FUNCTION(this << "\t" << loss_dbm << "\t" << ant_gain << "\t" << 10 * std::log10(S / kBT) << "\t" << rate / 1000.0 << " kbps");
 
 
         return DataRate(rate);
@@ -338,25 +338,25 @@ namespace ns3
         Ptr<PropagationLossModel> loss = sat_chn->GetPropagationLossModel();
 
         DataRate dr = GetRateEstimation(self_mob, other_mob, loss);
+        // NS_LOG_UNCOND("Rate: " << dr.GetBitRate());
 
         if (dr.GetBitRate() <= 0)
         {
             return Time(0);
         }
 
+
         ISLPacketTag tag;
         pck->RemovePacketTag(tag);
 
         Mac48Address src = tag.GetSrc();
-        Mac48Address dst = tag.GetDst();
+        Mac48Address dst = Mac48Address::ConvertFrom(other->GetAddress()); //tag.GetDst();
         uint16_t proto = tag.GetProto();
+
 
         sat_chn->Send(pck, proto, dst, src, src_dev);
 
         Time txTime = dr.CalculateBytesTxTime(pck->GetSize());
-
-        txTime.GetMilliSeconds();
-
         return txTime; 
     }
 

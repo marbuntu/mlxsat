@@ -82,6 +82,10 @@ public:
     double EstimateGain(const Ptr<MobilityModel> tx_mob, const Ptr<MobilityModel> rx_mob, double fc) const;
 
 
+    std::unordered_map<uint64_t, Ptr<SatelliteISLNetDevice>>::iterator GetDevicesBegin();
+
+    std::unordered_map<uint64_t, Ptr<SatelliteISLNetDevice>>::iterator GetDevicesEnd();
+
 
 private:
 
