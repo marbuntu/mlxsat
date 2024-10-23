@@ -72,6 +72,12 @@ public:
     uint16_t GetProto() const;
 
 
+    void SetSilentDst(Mac48Address);
+
+
+    Mac48Address GetSilentDst() const;
+
+
     void Print(std::ostream& os) const override;
 
 private:
@@ -79,6 +85,8 @@ private:
     Mac48Address m_src;        //!< source address
     Mac48Address m_dst;        //!< destination address
     uint16_t m_proto;          //!< protocol number
+
+    Mac48Address m_silentdst;  //!< Silent Destination Address used for Broadcasting
 
 };  /* ISLPacketTag */
 

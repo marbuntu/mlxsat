@@ -17,6 +17,7 @@ set(source_files
     helper/sat-isl-terminal-helper.cc
     helper/sat-isl-interface-helper.cc
     utils/orientation-helper.cc
+    utils/demo-setup-helper.cc
 )
 
 set(header_files
@@ -38,6 +39,7 @@ set(header_files
     helper/sat-isl-terminal-helper.h
     helper/sat-isl-interface-helper.h
     utils/orientation-helper.h
+    utils/demo-setup-helper.h
 )
 
 

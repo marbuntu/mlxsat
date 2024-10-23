@@ -138,6 +138,12 @@ public:
     Ptr<LVLHReference> GetLocalReference() const;
 
 
+    bool EnqueuePacket(Ptr<Packet> pck, Mac48Address src, Mac48Address dst, uint16_t proto);
+
+
+    bool EnqueueBroadcast(Ptr<Packet> pck, Mac48Address src, Mac48Address dst, uint16_t proto);
+
+
     // inherited from NetDevice base class.
     void SetIfIndex(const uint32_t index) override;
     uint32_t GetIfIndex() const override;
@@ -260,6 +266,10 @@ private:
      * \see class CallBackTraceSource
      */
     TracedCallback<Ptr<const Packet>> m_phyRxDropTrace;
+
+
+    TracedCallback<Ptr<const Packet>> m_phyRxTrace;
+    TracedCallback<Ptr<const Packet>, const Address&> m_phyTxTrace;
 
 
 

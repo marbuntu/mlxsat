@@ -347,10 +347,10 @@ namespace ns3
 
 
         ISLPacketTag tag;
-        pck->RemovePacketTag(tag);
+        pck->PeekPacketTag(tag);
 
         Mac48Address src = tag.GetSrc();
-        Mac48Address dst = Mac48Address::ConvertFrom(other->GetAddress()); //tag.GetDst();
+        Mac48Address dst = tag.GetDst();
         uint16_t proto = tag.GetProto();
 
 

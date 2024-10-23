@@ -13,7 +13,7 @@
 
 #include "sat-isl-channel.h"
 #include "sat-isl-net-device.h"
-
+#include "sat-isl-pck-tag.h"
 #include "ns3/double.h"
 #include "ns3/boolean.h"
 #include "ns3/simulator.h"
@@ -77,35 +77,83 @@ namespace ns3
         NS_LOG_FUNCTION(this << "\t" << pck << "\t" << protocol << "\t" << dst << "\t" << src << "\t" << sender);
 
 
-        if (!dst.IsBroadcast() && (GetDevice(dst) == nullptr))
+        ISLPacketTag tag;
+        if (!pck->PeekPacketTag(tag))
         {
-            NS_LOG_ERROR("Receiver Device not attached to this Channel!");
+            NS_LOG_FUNCTION(this << "Critical Error - No Pck Tag assigned!");
+            return;
+        }
+
+        Ptr<NetDevice> other = nullptr;
+        if (dst.IsBroadcast())
+        {
+            other = GetDevice(tag.GetSilentDst());
+        }
+        else
+        {
+            other = GetDevice(dst);
+        }
+
+        if (other == nullptr)
+        {
+            NS_LOG_ERROR("Error - Device not connected to the Channel!");
             return;
         }
 
 
-        if (m_compensateDoppler)
+        if (m_propDelay == nullptr) 
         {
+            NS_LOG_ERROR("Critical Error - No Delay model aggregated to Channel!");
+            return;
+        }
+
+        Ptr<MobilityModel> tx_mob = sender->GetNode()->GetObject<MobilityModel>();
+        Ptr<MobilityModel> rx_mob = other->GetNode()->GetObject<MobilityModel>();
+        Time delay = m_propDelay->GetDelay(tx_mob, rx_mob);
+
+        Ptr<SatelliteISLNetDevice> dev = StaticCast<SatelliteISLNetDevice>(other);
+
+        Simulator::ScheduleWithContext(
+            dev->GetNode()->GetId(),
+            delay, //Time("100ms"),
+            &SatelliteISLNetDevice::Receive,
+            dev,
+            pck->Copy(),
+            protocol,
+            dst,
+            src
+        );
+
+
+        // if (!dst.IsBroadcast() && (GetDevice(dst) == nullptr))
+        // {
+        //     NS_LOG_ERROR("Receiver Device not attached to this Channel!");
+        //     return;
+        // }
+
+
+        // if (m_compensateDoppler)
+        // {
             
-        }
+        // }
 
 
-        for (const auto& [key, dev ] : m_devices)
-        {
-            if (dev == sender) continue;
+        // for (const auto& [key, dev ] : m_devices)
+        // {
+        //     if (dev == sender) continue;
 
-            Simulator::ScheduleWithContext(
-                dev->GetNode()->GetId(),
-                Time("100ms"),
-                &SatelliteISLNetDevice::Receive,
-                dev,
-                pck->Copy(),
-                protocol,
-                dst,
-                src
-            );
-            // dev->Receive(pck, protocol, dst, scr);
-        }
+        //     Simulator::ScheduleWithContext(
+        //         dev->GetNode()->GetId(),
+        //         Time("100ms"),
+        //         &SatelliteISLNetDevice::Receive,
+        //         dev,
+        //         pck->Copy(),
+        //         protocol,
+        //         dst,
+        //         src
+        //     );
+        //     // dev->Receive(pck, protocol, dst, scr);
+        // }
     }
 
 
@@ -169,7 +217,7 @@ namespace ns3
 
     Ptr<NetDevice> SatelliteISLChannel::GetDevice(std::size_t i) const
     {   
-        if (m_devices.size() >= i) return nullptr;
+        if (i >= m_devices.size()) return nullptr;
 
         auto it = m_devices.begin();
         size_t n = 0;
@@ -194,6 +242,14 @@ namespace ns3
         }
 
         return nullptr;
+    }
+
+
+    double SatelliteISLChannel::EstimateGain(const Ptr<MobilityModel> tx_mob, const Ptr<MobilityModel> rx_mob, double fc) const
+    {
+        //m_propLoss->f
+
+        return m_propLoss->CalcRxPower(0, tx_mob, rx_mob);
     }
 
 
