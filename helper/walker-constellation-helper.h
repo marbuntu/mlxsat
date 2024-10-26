@@ -27,6 +27,14 @@ class WalkerConstellationHelper : public Object
 {
 public:
 
+    typedef enum
+    {
+        WALKER_DELTA = 0,
+        WALKER_STAR = 1,
+        WALKER_POLAR = 2
+    } walkerConstellationType_t;
+
+
     /**
      * @brief Constant: Seconds Per Day
      * 
@@ -132,6 +140,8 @@ public:
     Ptr<MobilityModel> getSatellite(unsigned long satIndex) const;
 
 private:
+
+    walkerConstellationType_t m_type;
 
     double m_inclination;
     double m_altitude;

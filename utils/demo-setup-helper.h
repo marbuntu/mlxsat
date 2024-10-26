@@ -21,6 +21,39 @@
 namespace ns3
 {
 
+    /**
+     * @category Simulation Helper
+     * @brief Helper Class to Setup a Simulation based on the Paper:
+     * 
+     *      On-Board Federated Learning for Satellite Clusters with Inter-Satellite Links
+     *      (Ref.: arXiv:2307.08346v2  [cs.IT]  21 Dec 2023)
+     * 
+     *  ### Constellations:
+     * 
+     *      + Walker-Delta: 60°: 40/5/1
+     * 
+     *      + Walker-Start: 85°: 40/5/1
+     * 
+     */
+    class SatDemoSatClusterForFL
+    {
+    public:
+        static void Initialize();
+
+
+    protected:
+
+        SatDemoSatClusterForFL();
+        ~SatDemoSatClusterForFL();
+    
+        std::vector<Ptr<SatSGP4MobilityModel>> m_walkerDelta;
+        std::vector<Ptr<SatSGP4MobilityModel>> m_walkerStar;
+    
+
+    };  /* SatDemoSatClusterForFL*/
+
+
+
     class SatDemoSetup
     {
     public:

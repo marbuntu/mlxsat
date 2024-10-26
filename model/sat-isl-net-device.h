@@ -144,6 +144,10 @@ public:
     bool EnqueueBroadcast(Ptr<Packet> pck, Mac48Address src, Mac48Address dst, uint16_t proto);
 
 
+    void SetMinDR(DataRate minDR);
+    DataRate GetMinDR() const;
+
+
     // inherited from NetDevice base class.
     void SetIfIndex(const uint32_t index) override;
     uint32_t GetIfIndex() const override;
@@ -174,6 +178,9 @@ public:
 
     void SetPromiscReceiveCallback(PromiscReceiveCallback cb) override;
     bool SupportsSendFrom() const override;
+
+
+    size_t GetNTerminals() const;
 
 
     /**
@@ -254,6 +261,8 @@ private:
      */
     bool m_pointToPointMode;
 
+
+    DataRate m_minDR;
     
 
 

@@ -69,6 +69,13 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
                 MakeIntegerAccessor(&SatelliteISLNetDevice::SetMtu, &SatelliteISLNetDevice::GetMtu),
                 MakeIntegerChecker<uint16_t>(1500)
             )
+            .AddAttribute(
+                "MinDR",
+                "Data Rate the Link must achieve to be evaluated as up!",
+                DataRateValue(10e3),
+                MakeDataRateAccessor(&SatelliteISLNetDevice::SetMinDR, &SatelliteISLNetDevice::GetMinDR),
+                MakeDataRateChecker()
+            )
             .AddTraceSource(
                 "PhyRxDrop",
                 "Trace Source to indicate Packet Loss at the Device",
@@ -474,12 +481,24 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
         for (const auto& terminal : m_terminals)
         {
             DataRate new_rate = terminal->GetRateEstimation(mob, other->GetNode()->GetObject<MobilityModel>(), m_channel->GetPropagationLossModel());
-            if ((new_rate > 0) && (new_rate > rate)) term = terminal;
+            if ((new_rate > 0) && (new_rate > rate))
+            {
+                term = terminal;
+                rate = new_rate;
+            } 
+                
         }
     
+
+        if ((rate < m_minDR) || (term == nullptr))
+        {
+            NS_LOG_FUNCTION(this << "Critical Error - Target Device not reachable!");
+            Simulator::Schedule(MilliSeconds(1), &SatelliteISLNetDevice::StartTransmission, this);
+            return;
+        }
+
+
         block_time = term->Transmit(pck, this, other, m_channel);
-
-
 
         // }
 
@@ -608,6 +627,24 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
     Ptr<LVLHReference> SatelliteISLNetDevice::GetLocalReference() const
     {
         return m_refLVLH;
+    }
+
+
+    void SatelliteISLNetDevice::SetMinDR(DataRate minDR)
+    {
+        m_minDR = minDR;
+    }
+
+
+    DataRate SatelliteISLNetDevice::GetMinDR() const
+    {
+        return m_minDR;
+    }
+
+
+    size_t SatelliteISLNetDevice::GetNTerminals() const
+    {
+        return m_terminals.size();
     }
 
 

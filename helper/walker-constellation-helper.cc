@@ -4,6 +4,7 @@
 #include <ns3/log.h>
 #include <ns3/double.h>
 #include <ns3/integer.h>
+#include <ns3/enum.h>
 
 #include <math.h>
 
@@ -28,12 +29,21 @@ TypeId WalkerConstellationHelper::GetTypeId (void)
     static TypeId tid = TypeId("ns3::WalkerConstellationHelper")
         .SetParent<Object>()
         .AddConstructor<WalkerConstellationHelper>()
+        .AddAttribute("WalkerType",
+                      "Select the Type of Walker Constellation",
+                      EnumValue(walkerConstellationType_t::WALKER_DELTA),
+                      MakeEnumAccessor(&WalkerConstellationHelper::m_type),
+                      MakeEnumChecker(
+                        WALKER_DELTA, "WalkerDelta",
+                        WALKER_STAR, "WalkerStart",
+                        WALKER_POLAR, "WalkerPolar"
+                      ))
         .AddAttribute("Inclination",
                       "Inclination of the orbital Plane",
                       DoubleValue(66.6),
                       MakeDoubleAccessor(&WalkerConstellationHelper::m_inclination),
                       MakeDoubleChecker<double>(0.0, 90.0))
-        .AddAttribute("NumOfSats",
+        .AddAttribute("SatsPerOrbit",
                       "Number of Satellites per Orbit",
                       IntegerValue(8),
                       MakeIntegerAccessor(&WalkerConstellationHelper::m_numSats),
