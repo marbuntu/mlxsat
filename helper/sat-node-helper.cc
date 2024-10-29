@@ -12,6 +12,7 @@
 
 
 #include "sat-node-helper.h"
+#include "sat-node-tag.h"
 
 
 namespace ns3
@@ -51,29 +52,76 @@ namespace ns3
     }
 
 
+    void SatelliteNodeHelper::SetISLChannel(const Ptr<SatelliteISLChannel> channel)
+    {
+        m_channel = channel;
+    }
+
+
+    Ptr<SatelliteISLChannel> SatelliteNodeHelper::GetISLChannel() const
+    {
+        return m_channel;
+    }
+
+
     Ptr<Node> SatelliteNodeHelper::Create() const
     {
         Ptr<Node> node = CreateObject<Node>();
+        Install(node);
 
-        Ptr<SatelliteISLNetDevice> itf = m_itfFactory.Create();
-        itf->SetNode(node);
-        node->AddDevice(itf);
+        //Ptr<SatelliteISLNetDevice> itf = m_itfFactory.CreateAndAggregate(node, m_channel);
+        // itf->SetNode(node);
+        // node->AddDevice(itf);
 
         return node;
     }
 
 
+    void SatelliteNodeHelper::Install(Ptr<Node> node) const
+    {
+         Ptr<SatelliteISLNetDevice> itf = m_itfFactory.CreateAndAggregate(node, m_channel);
+
+        //  Ptr<SatelliteNodeTag> tag = CreateObject<SatelliteNodeTag>();
+
+        //  node->AggregateObject(tag);
+    }
+
+
+    void SatelliteNodeHelper::Install(NodeContainer nodes) const
+    {
+        for (NodeContainer::Iterator it = nodes.Begin(); it != nodes.End(); it++)
+        {
+            //Ptr<SatelliteISLNetDevice> itf = m_itfFactory.CreateAndAggregate(*it, m_channel);
+            Install(*it);
+        }
+    }
+
+
     void SatelliteNodeHelper::printSatNodeInfo(std::ostream& out, const Ptr<Node> node)
     {
-        Ptr<SatelliteISLNetDevice> itf = StaticCast<SatelliteISLNetDevice>(node->GetDevice(0));
+        Ptr<SatelliteISLNetDevice> itf = nullptr;
+        if (node->GetNDevices() > 0)
+        {
+            itf = StaticCast<SatelliteISLNetDevice>(node->GetDevice(0));
+        }
 
-        out << "Test Sat\n";
+        Ptr<SatelliteNodeTag> tag = node->GetObject<SatelliteNodeTag>();
+
+        if (tag != nullptr)
+        {
+            out << "> Tag: " << tag->GetTypeId().GetName() << "\n";
+            out << "    Const.: " << int(tag->GetCID()) << "  Orbit: " << tag->GetOID() << "  Sat-ID: " << tag->GetId() << "\n";
+            // out << "    OID: " << int(tag->GetOID()) << "\n";
+            // out << "    CID: " << int(tag->GetCID()) << "\n";
+        }
+        else out << "No Satellite Node Tag found\n";
 
         if (itf != nullptr)
         {
-            out << "> Terminals: " << itf->GetNTerminals();
+            out << "> Terminals: " << itf->GetNTerminals() << "\n";
         }
         else out << "No Satellite ISL Interface found \n";
+
 
         out << "\n";
     }

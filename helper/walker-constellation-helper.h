@@ -141,7 +141,11 @@ public:
 
 private:
 
+    double _getRaanShift() const;
+
     walkerConstellationType_t m_type;
+
+    uint8_t m_CID;              //! Constellation ID
 
     double m_inclination;
     double m_altitude;

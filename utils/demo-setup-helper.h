@@ -18,6 +18,7 @@
 #include <ns3/walker-constellation-helper.h>
 #include <ns3/node-container.h>
 
+
 namespace ns3
 {
 
@@ -39,6 +40,7 @@ namespace ns3
     {
     public:
         static void Initialize();
+
 
 
     protected:

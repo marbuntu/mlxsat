@@ -9,6 +9,7 @@
 #include <math.h>
 
 #include "walker-constellation-helper.h"
+#include "sat-node-tag.h"
 
 NS_LOG_COMPONENT_DEFINE("WalkerConstellationHelper");
 
@@ -68,6 +69,11 @@ TypeId WalkerConstellationHelper::GetTypeId (void)
                       DoubleValue(860.0),
                       MakeDoubleAccessor(&WalkerConstellationHelper::m_altitude),
                       MakeDoubleChecker<double>(100.0))
+        .AddAttribute("ConstellationID",
+                      "Constellation ID ( 1 - 255 )",
+                      IntegerValue(1),
+                      MakeIntegerAccessor(&WalkerConstellationHelper::m_CID),
+                      MakeIntegerChecker<uint8_t>(1))
     ;
     return tid;
 }
@@ -88,7 +94,7 @@ void WalkerConstellationHelper::Initialize (void)
     NS_LOG_FUNCTION(this);
 
     double raan = m_raanShift;
-    double delta_raan = 360.0 / m_numPlanes;
+    double delta_raan = _getRaanShift(); //360.0 / m_numPlanes;
 
     long N = 0;
 
@@ -99,7 +105,9 @@ void WalkerConstellationHelper::Initialize (void)
             "Inclination", DoubleValue(m_inclination),
             "NumOfSats", IntegerValue(m_numSats),
             "AscendingNode", DoubleValue(raan),
-            "MeanMotion", DoubleValue(getMeanMotion())
+            "MeanMotion", DoubleValue(getMeanMotion()),
+            "ConstellationID", IntegerValue(m_CID),
+            "OrbitID", IntegerValue(SatelliteNodeTag::GetOrbitsN()+1)
         );
 
         orb->Initialize(N);
@@ -170,6 +178,22 @@ Ptr<MobilityModel> WalkerConstellationHelper::getSatellite (unsigned long satInd
     //std::cout << "Orb: " << orb << " Sat: " << sat << std::endl;
 
     return m_orbits.at(orb)->getSatellite(sat);
+}
+
+
+double WalkerConstellationHelper::_getRaanShift() const
+{
+    switch (m_type)
+    {
+    case WALKER_STAR:
+    case WALKER_POLAR:
+        return 180.0 / m_numPlanes;
+    
+    case WALKER_DELTA:
+    default:
+        return 360.0 / m_numPlanes;
+        
+    }
 }
 
 

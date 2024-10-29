@@ -75,7 +75,14 @@ class WalkerOrbitHelper : public Object
      */
     Ptr<MobilityModel> getSatellite(unsigned int satIndex) const;
 
+
+    NodeContainer getSatellites() const;
+
 private:
+
+    uint8_t m_CID;        //! Constellation ID
+    uint16_t m_OID;       //! Orbit ID
+
 
     double m_inclination;
     int m_numSats;

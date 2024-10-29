@@ -37,11 +37,19 @@ namespace ns3
 
         Ptr<SatelliteISLInterfaceHelper> GetInterfaceFactory();
 
+        
+        void SetISLChannel(const Ptr<SatelliteISLChannel> channel);
+
+        Ptr<SatelliteISLChannel> GetISLChannel() const;
+
 
         Ptr<Node> Create() const;
 
         Ptr<Node> Create(size_t N) const;
 
+        void Install(Ptr<Node> node) const;
+
+        void Install(NodeContainer nodes) const;
 
         void printSatNodeInfo(std::ostream& out, const Ptr<Node> node);
 
@@ -52,6 +60,7 @@ namespace ns3
 
     protected:
         SatelliteISLInterfaceHelper m_itfFactory;
+        Ptr<SatelliteISLChannel> m_channel;
 
 
     }; /* SatelliteNodeHelper */

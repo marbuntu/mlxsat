@@ -28,7 +28,8 @@ namespace ns3
             "SatsPerOrbit", IntegerValue(40),
             "NumOfOrbits", IntegerValue(5),
             "Phasing", DoubleValue(9.0),
-            "Altitude", DoubleValue(2000)
+            "Altitude", DoubleValue(2000),
+            "ConstellationID", IntegerValue(1)
         );
 
         delta->Initialize();
@@ -40,7 +41,8 @@ namespace ns3
             "SatsPerOrbit", IntegerValue(40),
             "NumOfOrbits", IntegerValue(5),
             "Phasing", DoubleValue(9.0),
-            "Altitude", DoubleValue(2000)
+            "Altitude", DoubleValue(2000),
+            "ConstellationID", IntegerValue(2)
         );
 
         star->Initialize();
@@ -59,8 +61,9 @@ namespace ns3
     void SatDemoSetup::Initialize()
     {
         SatDemoSetup::m_walker = CreateObjectWithAttributes<WalkerConstellationHelper>(
+            "WalkerType", EnumValue(WalkerConstellationHelper::WALKER_STAR),
             "Inclination", DoubleValue(66.0),
-            "NumOfSats", IntegerValue(10),
+            "SatsPerOrbit", IntegerValue(10),
             "NumOfOrbits", IntegerValue(10),
             "Altitude", DoubleValue(480)
         );
