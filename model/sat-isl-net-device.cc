@@ -488,7 +488,6 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
             } 
                 
         }
-    
 
         if ((rate < m_minDR) || (term == nullptr))
         {

@@ -22,31 +22,42 @@ namespace ns3
     void SatDemoSatClusterForFL::Initialize()
     {
 
-        Ptr<WalkerConstellationHelper> delta = CreateObjectWithAttributes<WalkerConstellationHelper>(
+        Ptr<WalkerConstellationHelper> test = CreateObjectWithAttributes<WalkerConstellationHelper>(
             "WalkerType", EnumValue(WalkerConstellationHelper::WALKER_DELTA),
             "Inclination", DoubleValue(60.0),
             "SatsPerOrbit", IntegerValue(40),
             "NumOfOrbits", IntegerValue(5),
             "Phasing", DoubleValue(9.0),
             "Altitude", DoubleValue(2000),
-            "ConstellationID", IntegerValue(1)
+            "ConstellationID", IntegerValue(3)
         );
+        test->Initialize();
 
-        delta->Initialize();
-        delta->LogInitialPositions("./pyplot/data/delta", ".txt");
+        // Ptr<WalkerConstellationHelper> delta = CreateObjectWithAttributes<WalkerConstellationHelper>(
+        //     "WalkerType", EnumValue(WalkerConstellationHelper::WALKER_DELTA),
+        //     "Inclination", DoubleValue(60.0),
+        //     "SatsPerOrbit", IntegerValue(40),
+        //     "NumOfOrbits", IntegerValue(5),
+        //     "Phasing", DoubleValue(9.0),
+        //     "Altitude", DoubleValue(2000),
+        //     "ConstellationID", IntegerValue(1)
+        // );
 
-        Ptr<WalkerConstellationHelper> star = CreateObjectWithAttributes<WalkerConstellationHelper>(
-            "WalkerType", EnumValue(WalkerConstellationHelper::WALKER_STAR),
-            "Inclination", DoubleValue(85.0),
-            "SatsPerOrbit", IntegerValue(40),
-            "NumOfOrbits", IntegerValue(5),
-            "Phasing", DoubleValue(9.0),
-            "Altitude", DoubleValue(2000),
-            "ConstellationID", IntegerValue(2)
-        );
+        // delta->Initialize();
+        // delta->LogInitialPositions("./pyplot/data/delta", ".txt");
 
-        star->Initialize();
-        star->LogInitialPositions("./pyplot/data/star", ".txt");
+        // Ptr<WalkerConstellationHelper> star = CreateObjectWithAttributes<WalkerConstellationHelper>(
+        //     "WalkerType", EnumValue(WalkerConstellationHelper::WALKER_STAR),
+        //     "Inclination", DoubleValue(85.0),
+        //     "SatsPerOrbit", IntegerValue(40),
+        //     "NumOfOrbits", IntegerValue(5),
+        //     "Phasing", DoubleValue(9.0),
+        //     "Altitude", DoubleValue(2000),
+        //     "ConstellationID", IntegerValue(2)
+        // );
+
+        // star->Initialize();
+        // star->LogInitialPositions("./pyplot/data/star", ".txt");
 
     }
 

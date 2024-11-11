@@ -117,6 +117,14 @@ namespace ns3
     }
 
 
+    bool SatelliteNodeTag::GetExists(const satid_t id)
+    {
+        if (m_globalNodes.find(id) != m_globalNodes.end()) return true;
+        
+        return false;
+    }
+
+
     SatelliteNodeTag::SatelliteNodeTag()
     {
     }
