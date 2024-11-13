@@ -84,7 +84,7 @@ namespace ns3
     }
 
 
-    std::vector<uint16_t> SatelliteNodeTag::SatsByOrbit(const uint16_t orbitID)
+    std::vector<satid_t> SatelliteNodeTag::SatsByOrbit(const orbid_t orbitID)
     {
         if (auto sat_vec = m_OmapS.find(orbitID); sat_vec != m_OmapS.end())
         {

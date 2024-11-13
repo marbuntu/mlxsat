@@ -98,6 +98,9 @@ void WalkerConstellationHelper::Initialize (void)
 
     long N = 0;
 
+    double phase = 0.0;
+
+
     for (int i = 0; i < m_numPlanes; i++)
     {
 
@@ -106,6 +109,7 @@ void WalkerConstellationHelper::Initialize (void)
             "NumOfSats", IntegerValue(m_numSats),
             "AscendingNode", DoubleValue(raan),
             "MeanMotion", DoubleValue(getMeanMotion()),
+            "Phase", DoubleValue(phase),
             "ConstellationID", IntegerValue(m_CID),
             "OrbitID", IntegerValue(SatelliteNodeTag::GetOrbitsN()+1)
         );
@@ -120,6 +124,10 @@ void WalkerConstellationHelper::Initialize (void)
         // Calc RAAN of next Orbit
         if ((raan += delta_raan) >= 360.0)
             raan -= 360.0;
+
+        // Shift Phase
+        if ((phase -= m_phasing) < 0.0)
+            phase += 360.0;
 
     }
 

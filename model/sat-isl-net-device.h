@@ -264,6 +264,10 @@ private:
 
     DataRate m_minDR;
     
+    /**
+     * @brief Use Global Interconnect Matrix for Known Neighbours
+     */
+    bool m_useICM;
 
 
     /**

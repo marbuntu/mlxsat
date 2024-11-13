@@ -23,7 +23,7 @@ namespace ns3
     {
 
         Ptr<WalkerConstellationHelper> test = CreateObjectWithAttributes<WalkerConstellationHelper>(
-            "WalkerType", EnumValue(WalkerConstellationHelper::WALKER_DELTA),
+            "WalkerType", EnumValue(WalkerConstellationHelper::WALKER_STAR),
             "Inclination", DoubleValue(60.0),
             "SatsPerOrbit", IntegerValue(40),
             "NumOfOrbits", IntegerValue(5),

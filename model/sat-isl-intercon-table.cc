@@ -80,6 +80,18 @@ namespace ns3
     }
 
 
+    bool SatISLInterconTable::IsAvailable(const satid_t src, const satid_t dst)
+    {
+        auto Nit = m_interconMap.equal_range(src);
+        for(auto &it = Nit.first; it != Nit.second; it++)
+        {
+            if (it->second == dst) return true;
+        }
+
+        return false;
+    }
+
+
     void SatISLInterconTable::Plot(std::ostream &out)
     {
         std::for_each(m_interconMap.begin(), m_interconMap.end(), 

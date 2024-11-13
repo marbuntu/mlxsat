@@ -112,7 +112,7 @@ namespace ns3
             "Psi", DoubleValue(0.0)
             )->SetAntennaModel<SatelliteISLAntenna>(
                 "RadiationPattern", EnumValue(SatelliteISLAntenna::RP_Cosine),
-                "MaxGainDbi", DoubleValue(50.0),
+                "MaxGainDbi", DoubleValue(32.13),
                 "OpeningAngle", DoubleValue(160.0)
             );
 
@@ -122,7 +122,7 @@ namespace ns3
             "Psi", DoubleValue(90.0)
             )->SetAntennaModel<SatelliteISLAntenna>(
                 "RadiationPattern", EnumValue(SatelliteISLAntenna::RP_Cosine),
-                "MaxGainDbi", DoubleValue(50.0),
+                "MaxGainDbi", DoubleValue(32.13),
                 "OpeningAngle", DoubleValue(160.0)
             );
 
@@ -132,7 +132,7 @@ namespace ns3
             "Psi", DoubleValue(180.0)
             )->SetAntennaModel<SatelliteISLAntenna>(
                 "RadiationPattern", EnumValue(SatelliteISLAntenna::RP_Cosine),
-                "MaxGainDbi", DoubleValue(50.0),
+                "MaxGainDbi", DoubleValue(32.13),
                 "OpeningAngle", DoubleValue(160.0)
             );
 
@@ -142,7 +142,7 @@ namespace ns3
             "Psi", DoubleValue(-90.0)
             )->SetAntennaModel<SatelliteISLAntenna>(
                 "RadiationPattern", EnumValue(SatelliteISLAntenna::RP_Cosine),
-                "MaxGainDbi", DoubleValue(50.0),
+                "MaxGainDbi", DoubleValue(32.13),
                 "OpeningAngle", DoubleValue(160.0)
             );
 

@@ -44,6 +44,8 @@ namespace ns3
 
         std::pair<interconMatrixIter_t, interconMatrixIter_t> GetKnownNeighbours(const satid_t id);
 
+        bool IsAvailable(const satid_t src, const satid_t dst);
+
         size_t GetSize() const;
 
         void Plot(std::ostream &out);

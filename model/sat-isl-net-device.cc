@@ -76,6 +76,13 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
                 MakeDataRateAccessor(&SatelliteISLNetDevice::SetMinDR, &SatelliteISLNetDevice::GetMinDR),
                 MakeDataRateChecker()
             )
+            .AddAttribute(
+                "GlobalICM",
+                "Use Global Interconnect Matrix (ICM) for Known Neighbours",
+                BooleanValue(false),
+                MakeBooleanAccessor(&SatelliteISLNetDevice::m_useICM),
+                MakeBooleanChecker()
+            )
             .AddTraceSource(
                 "PhyRxDrop",
                 "Trace Source to indicate Packet Loss at the Device",
