@@ -57,11 +57,16 @@ namespace ns3
         friend std::ostream& operator<<(std::ostream& out, const Node &node);
 
 
+        void SetInitIpStack(const bool onOff);
+        bool GetInitIpStack() const;
+
+
 
     protected:
         SatelliteISLInterfaceHelper m_itfFactory;
         Ptr<SatelliteISLChannel> m_channel;
 
+        bool m_ipstack;
 
     }; /* SatelliteNodeHelper */
 

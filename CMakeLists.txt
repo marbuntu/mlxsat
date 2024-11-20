@@ -9,6 +9,7 @@ set(source_files
     model/sat-leo-propagation-loss.cc
     model/sat-leo-delay-model.cc
     model/sat-isl-intercon-table.cc
+    model/sat-isl-ipv4-routing.cc
 #    model/sat-node.cc
     helper/groundstation-helper.cc
     helper/gsl-channel-helper.cc
@@ -35,6 +36,7 @@ set(header_files
     model/sat-leo-propagation-loss.h
     model/sat-leo-delay-model.h
     model/sat-isl-intercon-table.h
+    model/sat-isl-ipv4-routing.h
 #    model/sat-node.h
     helper/groundstation-helper.h
     helper/gsl-channel-helper.h

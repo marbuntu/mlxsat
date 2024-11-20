@@ -10,7 +10,7 @@
  * 
  */
 
-
+#include "ns3/boolean.h"
 #include "sat-node-helper.h"
 #include "sat-node-tag.h"
 
@@ -23,6 +23,13 @@ namespace ns3
         static TypeId tid = TypeId("ns3::SatelliteNodeHelper")
             .SetParent<Object>()
             .AddConstructor<SatelliteNodeHelper>()
+            .AddAttribute(
+                "InitIPStack",
+                "Initialize Nodes including the IP stack.",
+                BooleanValue(true),
+                MakeBooleanAccessor(&SatelliteNodeHelper::SetInitIpStack, &SatelliteNodeHelper::GetInitIpStack),
+                MakeBooleanChecker()
+            )
         ;
 
         return tid;
@@ -124,6 +131,18 @@ namespace ns3
 
 
         out << "\n";
+    }
+
+
+    void SatelliteNodeHelper::SetInitIpStack(const bool onOff)
+    {
+        m_ipstack = onOff;
+    }
+
+
+    bool SatelliteNodeHelper::GetInitIpStack() const
+    {
+        return m_ipstack;
     }
 
 
