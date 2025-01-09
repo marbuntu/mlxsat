@@ -101,6 +101,16 @@ namespace ns3
     }
 
 
+    Ptr<SatelliteISLChannel> SatDemoSetup::GetDefaultChannel()
+    {
 
+        Ptr<SatelliteISLChannel> channel = CreateObject<SatelliteISLChannel>();
+        Ptr<FriisPropagationLossModel> loss_model = CreateObject<FriisPropagationLossModel>();
+        Ptr<ConstantSpeedPropagationDelayModel> delay_model = CreateObject<ConstantSpeedPropagationDelayModel>();
+        channel->SetPropagationLossModel(loss_model);
+        channel->SetPropagationDelayModel(delay_model);
+
+        return channel;
+    }
 
 }   /* namespace ns3 */

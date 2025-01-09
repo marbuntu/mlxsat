@@ -29,7 +29,7 @@ namespace ns3
 
     SatelliteISLChannel::SatelliteISLChannel()
     : m_bandwidth(0.0)
-    , m_compensateDoppler(true)
+    // , m_compensateDoppler(true)
     , m_propDelay()
     , m_propLoss()
     {
@@ -54,12 +54,19 @@ namespace ns3
                 , MakeDoubleAccessor(&SatelliteISLChannel::m_bandwidth)
                 , MakeDoubleChecker<double>(0.0)
             )
+            // .AddAttribute(
+            //     "DopplerShift"
+            //     , "Center-Frequency at the Receiver the Doppler-Shift"
+            //     , BooleanValue(true)
+            //     , MakeBooleanAccessor(&SatelliteISLChannel::m_compensateDoppler)
+            //     , MakeBooleanChecker()
+            // )
             .AddAttribute(
-                "DopplerCompensated"
-                , "Adjust Center-Frequency at the transmitter to mitigate the Doppler-Shift"
-                , BooleanValue(true)
-                , MakeBooleanAccessor(&SatelliteISLChannel::m_compensateDoppler)
-                , MakeBooleanChecker()
+                "NoiseTemperature"
+                , "Equivalent Noise Temperature in Kelvin"
+                , DoubleValue(1000.0)
+                , MakeDoubleAccessor(&SatelliteISLChannel::SetNoiseTemperature, &SatelliteISLChannel::GetNoiseTemperature)
+                , MakeDoubleChecker<double>(1.0)
             )
         ;
 
@@ -115,7 +122,7 @@ namespace ns3
 
         Simulator::ScheduleWithContext(
             dev->GetNode()->GetId(),
-            delay, //Time("100ms"),
+            delay,
             &SatelliteISLNetDevice::Receive,
             dev,
             pck->Copy(),
@@ -123,37 +130,6 @@ namespace ns3
             dst,
             src
         );
-
-
-        // if (!dst.IsBroadcast() && (GetDevice(dst) == nullptr))
-        // {
-        //     NS_LOG_ERROR("Receiver Device not attached to this Channel!");
-        //     return;
-        // }
-
-
-        // if (m_compensateDoppler)
-        // {
-            
-        // }
-
-
-        // for (const auto& [key, dev ] : m_devices)
-        // {
-        //     if (dev == sender) continue;
-
-        //     Simulator::ScheduleWithContext(
-        //         dev->GetNode()->GetId(),
-        //         Time("100ms"),
-        //         &SatelliteISLNetDevice::Receive,
-        //         dev,
-        //         pck->Copy(),
-        //         protocol,
-        //         dst,
-        //         src
-        //     );
-        //     // dev->Receive(pck, protocol, dst, scr);
-        // }
     }
 
 
@@ -250,6 +226,19 @@ namespace ns3
         //m_propLoss->f
 
         return m_propLoss->CalcRxPower(0, tx_mob, rx_mob);
+    }
+
+
+    void SatelliteISLChannel::SetNoiseTemperature(const double temp)
+    {
+        if (temp <= 0.0) return;
+        m_noiseTemp = temp;
+    }
+
+
+    double SatelliteISLChannel::GetNoiseTemperature() const
+    {
+        return m_noiseTemp;
     }
 
 

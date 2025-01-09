@@ -88,6 +88,11 @@ namespace ns3
     {
          Ptr<SatelliteISLNetDevice> itf = m_itfFactory.CreateAndAggregate(node, m_channel);
 
+
+        if (m_ipstack)
+        {
+            m_ipStackHelper.Install(node);
+        }   
         //  Ptr<SatelliteNodeTag> tag = CreateObject<SatelliteNodeTag>();
 
         //  node->AggregateObject(tag);

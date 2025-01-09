@@ -17,6 +17,7 @@
 #include <ns3/core-module.h>
 #include <ns3/walker-constellation-helper.h>
 #include <ns3/node-container.h>
+#include <ns3/sat-isl-channel.h>
 
 
 namespace ns3
@@ -68,6 +69,8 @@ namespace ns3
 
         static NodeContainer GetDefaultNodes();
 
+
+        static Ptr<SatelliteISLChannel> GetDefaultChannel();
 
 
     protected:

@@ -190,7 +190,16 @@ public:
     double GetAntennaGain(const Ptr<MobilityModel> self, Ptr<MobilityModel> other) const;
 
 
-    DataRate GetRateEstimation(const Ptr<MobilityModel> self, Ptr<MobilityModel> other, const Ptr<PropagationLossModel> loss) const;
+    /**
+     * @brief Estimate the achievable Data Rate to Target
+     * 
+     * @param self      Mobility Model Transmitter
+     * @param other     Mobility Model Receiver
+     * @param loss      Loss Model
+     * @param noise_temperature  Noise Temperature
+     * @return DataRate 
+     */
+    DataRate GetRateEstimation(const Ptr<MobilityModel> self, Ptr<MobilityModel> other, const Ptr<PropagationLossModel> loss, const double noise_temperature) const;
 
     /**
      * @brief   Transmit Packet to other Satellite

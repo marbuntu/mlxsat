@@ -54,10 +54,9 @@ TypeId WalkerOrbitHelper::GetTypeId (void)
                       "Constellation ID ( 1 - 255 )",
                       IntegerValue(1),
                       MakeIntegerAccessor(&WalkerOrbitHelper::m_CID),
-                      MakeIntegerChecker<uint8_t>(1, 255)
-        )
+                      MakeIntegerChecker<uint8_t>(1, 255))
         .AddAttribute("OrbitID",
-                      "Orbit ID ( 1 - 2^16 )",
+                      "Orbit ID ( between 1 to 2^16 )",
                       IntegerValue(1),
                       MakeIntegerAccessor(&WalkerOrbitHelper::m_OID),
                       MakeIntegerChecker<uint16_t>(1)

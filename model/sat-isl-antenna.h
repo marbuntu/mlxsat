@@ -16,6 +16,7 @@
 
 
 #include "ns3/antenna-model.h"
+#include "ns3/random-variable-stream.h"
 
 
 namespace ns3
@@ -55,6 +56,10 @@ namespace ns3
         double GetOpeningAngle() const;
 
 
+        double GetPointingErrorDb(const double gain_db) const;
+
+        Ptr<RandomVariableStream> GetPointingErrorModel();
+
         // void SetAntennaOrientation(const Vector &vec);
 
 
@@ -64,6 +69,8 @@ namespace ns3
         double m_maxGainDbi;
         double m_openingAngle;
 
+        Ptr<RandomVariableStream> m_errmodel;
+        double m_errfactor;
 
     };  /* SatelliteISLAntenna */
 

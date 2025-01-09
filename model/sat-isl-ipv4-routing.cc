@@ -23,7 +23,7 @@ namespace ns3
 
     TypeId SatelliteISLRoutingIPv4::GetTypeId()
     {
-        TypeId tid = TypeId("ns3::SatelliteISLRoutingIPv4")
+        static TypeId tid = TypeId("ns3::SatelliteISLRoutingIPv4")
             .SetParent<Ipv4RoutingProtocol>()
             .AddConstructor<SatelliteISLRoutingIPv4>()
             .SetGroupName("Internet")
@@ -206,7 +206,10 @@ namespace ns3
                 route = Create<Ipv4Route>();
                 route->SetDestination(tble->GetDest());
                 route->SetGateway(tble->GetGateway());
-                route->SetSource(m_ipv4->SourceAddressSelection(tble->GetInterface(), tble->GetDest()));
+
+                uint32_t itfn = tble->GetInterface();
+                Ipv4Address saddr = m_ipv4->SourceAddressSelection(itfn, tble->GetDest());
+                route->SetSource(saddr); //m_ipv4->SourceAddressSelection(tble->GetInterface(), tble->GetDest()));
                 route->SetOutputDevice(m_ipv4->GetNetDevice(tble->GetInterface()));
             }
         }

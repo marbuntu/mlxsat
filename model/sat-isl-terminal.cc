@@ -288,7 +288,7 @@ namespace ns3
     }
 
 
-    DataRate SatelliteISLTerminal::GetRateEstimation(const Ptr<MobilityModel> self, Ptr<MobilityModel> other, const Ptr<PropagationLossModel> loss) const
+    DataRate SatelliteISLTerminal::GetRateEstimation(const Ptr<MobilityModel> self, Ptr<MobilityModel> other, const Ptr<PropagationLossModel> loss, const double noise_temperature) const
     {
         double fc = 40e9;
         double B = fc * 0.02;
@@ -297,6 +297,7 @@ namespace ns3
         Ptr<FriisPropagationLossModel> lossm = StaticCast<FriisPropagationLossModel>(loss);
 
         lossm->SetFrequency(fc);
+
         double loss_dbm = lossm->CalcRxPower(45, self, other);
 
         Angles ant_angles = GetRelativeAngles(other->GetPosition());
@@ -307,7 +308,7 @@ namespace ns3
         if (isnan(loss_dbm) || isnan(ant_gain)) return DataRate(0);
 
 
-        double kBT = SatConstVariables::BOLTZMANN_CONSTANT * 1000.0 * B;
+        double kBT = SatConstVariables::BOLTZMANN_CONSTANT * noise_temperature * B;
         double S = std::pow(10.0, 0.1 * (((loss_dbm + ant_gain)))); //- 30.0)));
         uint64_t rate =(uint64_t)  std::floor(B * log2(1 + (S / kBT)));
 
@@ -337,7 +338,7 @@ namespace ns3
 
         Ptr<PropagationLossModel> loss = sat_chn->GetPropagationLossModel();
 
-        DataRate dr = GetRateEstimation(self_mob, other_mob, loss);
+        DataRate dr = GetRateEstimation(self_mob, other_mob, loss, sat_chn->GetNoiseTemperature());
         // NS_LOG_UNCOND("Rate: " << dr.GetBitRate());
 
         if (dr.GetBitRate() <= 0)

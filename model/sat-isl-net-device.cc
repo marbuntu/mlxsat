@@ -425,37 +425,7 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
             return;
         }
 
-
         Time block_time = Time(0);
-
-        // // Handle Broadcast
-        // if (tag.GetDst().IsBroadcast())
-        // {
-        //     NS_LOG_ERROR("Broadcast Tag Detected! This should never happen! ERROR in previous steps");
-
-        //     for(auto it = m_channel->GetDevicesBegin(); it != m_channel->GetDevicesEnd(); it++)
-        //     {
-        //         Ptr<NetDevice> other = it->second;
-
-        //         if (other == this) continue;
-
-        //         // Update Local Reference Frame
-        //         Ptr<MobilityModel> mob = m_node->GetObject<MobilityModel>();
-        //         m_refLVLH->UpdateLocalReference(mob->GetPosition(), mob->GetVelocity());
-
-        //         DataRate rate;
-
-        //         for (const Ptr<SatelliteISLTerminal>& terminal : m_terminals)
-        //         {
-        //             rate = terminal->GetRateEstimation(mob, other->GetNode()->GetObject<MobilityModel>(), m_channel->GetPropagationLossModel());
-        //             NS_LOG_FUNCTION(this << rate);
-        //             block_time = Max(block_time, terminal->Transmit(pck, this, other, m_channel));
-        //         }
-        //     }
-        // }
-        // else
-        // {
-
 
         // Get Other MobilityModel
         Ptr<NetDevice> other = nullptr;
@@ -487,7 +457,7 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
 
         for (const auto& terminal : m_terminals)
         {
-            DataRate new_rate = terminal->GetRateEstimation(mob, other->GetNode()->GetObject<MobilityModel>(), m_channel->GetPropagationLossModel());
+            DataRate new_rate = terminal->GetRateEstimation(mob, other->GetNode()->GetObject<MobilityModel>(), m_channel->GetPropagationLossModel(), m_channel->GetNoiseTemperature());
             if ((new_rate > 0) && (new_rate > rate))
             {
                 term = terminal;

@@ -17,6 +17,7 @@
 
 #include "ns3/object.h"
 #include "ns3/node.h"
+#include "ns3/internet-stack-helper.h"
 
 #include "sat-isl-interface-helper.h"
 
@@ -64,6 +65,7 @@ namespace ns3
 
     protected:
         SatelliteISLInterfaceHelper m_itfFactory;
+        InternetStackHelper m_ipStackHelper;
         Ptr<SatelliteISLChannel> m_channel;
 
         bool m_ipstack;
