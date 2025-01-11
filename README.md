@@ -1,5 +1,5 @@
 
-# ns-3 Satellite Extension for Satellite Networks with ISLs
+# ns-3 Extension for Satellite Networks with ISLs
 
 ![](./doc/global-traffic-plot-delta.jpg)
 
