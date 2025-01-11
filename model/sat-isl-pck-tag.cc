@@ -1,7 +1,7 @@
 /**
- * @brief   SOURCE TEMPLATE
+ * @brief   Satellite ISL Packet Tag
  * 
- * @file    _template.cc
+ * @file    sat-isl-pck-tag.cc
  * @author  M. Anschuetz (martin.anschuetz@vert-tec.de)
  * @version 1.0
  * @date    2024-07-18
@@ -43,26 +43,28 @@ namespace ns3
 
     uint32_t ISLPacketTag::GetSerializedSize() const
     {
-        return 8+8+2;
+        return 6+6+6+2;
     }
 
 
     void ISLPacketTag::Serialize(TagBuffer i) const
     {
-        uint8_t buff[12];
+        uint8_t buff[18];
         m_src.CopyTo(&buff[0]);
         m_dst.CopyTo(&buff[6]);
-        i.Write(buff, 12);
+        m_silentdst.CopyTo(&buff[12]);
+        i.Write(buff, 18);
         i.WriteU16(m_proto);
     }
 
 
     void ISLPacketTag::Deserialize(TagBuffer i)
     {
-        uint8_t buff[12];
-        i.Read(buff, 12);
+        uint8_t buff[18];
+        i.Read(buff, 18);
         m_src.CopyFrom(&buff[0]);
         m_dst.CopyFrom(&buff[6]);
+        m_silentdst.CopyFrom(&buff[12]);
         m_proto = i.ReadU16();
     }
 
@@ -109,9 +111,23 @@ namespace ns3
     }
 
 
+    void ISLPacketTag::SetSilentDst(Mac48Address dst)
+    {
+        NS_LOG_FUNCTION(this << dst);
+        m_silentdst = dst;
+    }
+
+
+    Mac48Address ISLPacketTag::GetSilentDst() const
+    {
+        NS_LOG_FUNCTION(this);
+        return m_silentdst;
+    }
+
+
     void ISLPacketTag::Print(std::ostream& os) const
     {
-        os << "src=" << m_src << " dst=" << m_dst << " proto=" << m_proto;
+        os << "src=" << m_src << " dst=" << m_dst << " proto=" << m_proto << " silent=" << m_silentdst;
     }
 
 

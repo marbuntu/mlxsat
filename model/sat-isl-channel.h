@@ -82,6 +82,15 @@ public:
     double EstimateGain(const Ptr<MobilityModel> tx_mob, const Ptr<MobilityModel> rx_mob, double fc) const;
 
 
+    void SetNoiseTemperature(const double temp);
+
+    double GetNoiseTemperature() const;
+
+
+    std::unordered_map<uint64_t, Ptr<SatelliteISLNetDevice>>::iterator GetDevicesBegin();
+
+    std::unordered_map<uint64_t, Ptr<SatelliteISLNetDevice>>::iterator GetDevicesEnd();
+
 
 private:
 
@@ -92,8 +101,9 @@ private:
     std::unordered_map<uint64_t, Ptr<SatelliteISLNetDevice>> m_devices;
     
     double m_bandwidth;                                     //! Channel Bandwidth in Hz
-    bool m_compensateDoppler;                               //! Compensate Doppler-Shift
+   // bool m_compensateDoppler;                               //! Compensate Doppler-Shift
 
+    double m_noiseTemp;                                     //! Noise Temperature
 
     Ptr<PropagationDelayModel>  m_propDelay;                // Propagation Delay Model
     Ptr<PropagationLossModel>   m_propLoss;                 //! Propagation Loss Model

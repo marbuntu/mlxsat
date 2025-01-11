@@ -9,6 +9,7 @@
 
 #include "walker-orbit-helper.h"
 #include "ns3/pseudo-tle.h"
+#include "sat-node-tag.h"
 
 
 NS_LOG_COMPONENT_DEFINE("WalkerOrbitHelper");
@@ -49,6 +50,17 @@ TypeId WalkerOrbitHelper::GetTypeId (void)
                       DoubleValue(13.0),
                       MakeDoubleAccessor(&WalkerOrbitHelper::m_meanMotion),
                       MakeDoubleChecker<double>(0.0, 17.0))
+        .AddAttribute("ConstellationID",
+                      "Constellation ID ( 1 - 255 )",
+                      IntegerValue(1),
+                      MakeIntegerAccessor(&WalkerOrbitHelper::m_CID),
+                      MakeIntegerChecker<uint8_t>(1, 255))
+        .AddAttribute("OrbitID",
+                      "Orbit ID ( between 1 to 2^16 )",
+                      IntegerValue(1),
+                      MakeIntegerAccessor(&WalkerOrbitHelper::m_OID),
+                      MakeIntegerChecker<uint16_t>(1)
+        )
     ;
 
     return tid;
@@ -65,7 +77,7 @@ WalkerOrbitHelper::WalkerOrbitHelper (void)
     NS_LOG_FUNCTION (this);
 
     // Is this neccessary for Abstraction of Object-Class ?
-    ObjectBase::ConstructSelf (AttributeConstructionList ());
+    // ObjectBase::ConstructSelf (AttributeConstructionList ());
     
     
 }
@@ -82,9 +94,15 @@ void WalkerOrbitHelper::Initialize (unsigned long satNo_seed)
 
     for (unsigned long n = satNo_seed; n < satNo_seed + m_numSats; n++)
     {
+        Ptr<SatelliteNodeTag> sat_tag = CreateObjectWithAttributes<SatelliteNodeTag>(
+            "ConstellationID", IntegerValue(m_CID),
+            "OrbitID", IntegerValue(m_OID)
+        );
+        sat_tag->Register();
+
         Ptr<PseudoSatTLE> sat = CreateObjectWithAttributes<PseudoSatTLE>(
             "Inclination", DoubleValue(m_inclination),
-            "SatNo", IntegerValue(n),
+            "SatNo", IntegerValue(sat_tag->GetId()),
             "MeanAnomaly", DoubleValue(phase),
             "AscendingNode", DoubleValue(m_raan),
             "MeanMotion", DoubleValue(m_meanMotion)
@@ -99,11 +117,12 @@ void WalkerOrbitHelper::Initialize (unsigned long satNo_seed)
         
         Ptr<Node> node = CreateObject<Node>();
         node->AggregateObject(sat_mob);
+        node->AggregateObject(sat);
+        node->AggregateObject(sat_tag);
 
         m_nodes.Add(node);
 
         // Calculate next Phase
-        ;
         if ((phase += phase_delta) > 360.0) 
             phase -= 360.0;
 
@@ -142,5 +161,12 @@ Ptr<MobilityModel> WalkerOrbitHelper::getSatellite (unsigned int satIndex ) cons
         
     return m_sats.at(satIndex);
 }
+
+
+NodeContainer WalkerOrbitHelper::getSatellites() const
+{
+    return m_nodes;
+}
+
 
 }   // namespace ns3

@@ -108,9 +108,6 @@ static void plot_step(sim_params_t *params)
 
 int main(int argc, char* argv[])
 {
-    SatelliteISLInterfaceHelper itf_helper = DefaultISLInterfaceSetup::GetDefaultFactory(
-        DefaultISLInterfaceSetup::SYMMETRIC_4x
-    );
 
     Ptr<WalkerConstellationHelper> helper = CreateObjectWithAttributes<WalkerConstellationHelper>(
         "Inclination", DoubleValue(66.0),
@@ -136,10 +133,10 @@ int main(int argc, char* argv[])
     Ptr<FriisPropagationLossModel> loss_model = CreateObject<FriisPropagationLossModel>();
     channel->SetPropagationLossModel(loss_model);
 
-    for (NodeContainer::Iterator it = nodes.Begin(); it != nodes.End(); it++)
-    {
-        Ptr<SatelliteISLNetDevice> itf = itf_helper.CreateAndAggregate(*it, channel);
-    }
+
+    SatelliteISLInterfaceHelper itf_helper = DefaultISLInterfaceSetup::GetDefaultFactory(DefaultISLInterfaceSetup::SYMMETRIC_4x);
+    itf_helper.Install(nodes, channel);
+
 
 
     /* Simulation Setup */

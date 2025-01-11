@@ -138,6 +138,19 @@ public:
     Ptr<LVLHReference> GetLocalReference() const;
 
 
+    bool EnqueuePacket(Ptr<Packet> pck, Mac48Address src, Mac48Address dst, uint16_t proto);
+
+
+    bool EnqueueBroadcast(Ptr<Packet> pck, Mac48Address src, Mac48Address dst, uint16_t proto);
+
+
+    void SetMinDR(DataRate minDR);
+    DataRate GetMinDR() const;
+
+    void SetRxSensitivity(const double rxsens_dbm);
+    double GetRxSensitivity() const;
+
+
     // inherited from NetDevice base class.
     void SetIfIndex(const uint32_t index) override;
     uint32_t GetIfIndex() const override;
@@ -168,6 +181,9 @@ public:
 
     void SetPromiscReceiveCallback(PromiscReceiveCallback cb) override;
     bool SupportsSendFrom() const override;
+
+
+    size_t GetNTerminals() const;
 
 
     /**
@@ -248,7 +264,16 @@ private:
      */
     bool m_pointToPointMode;
 
+
+    DataRate m_minDR;
+
+    double m_rxsensdbm;
+
     
+    /**
+     * @brief Use Global Interconnect Matrix for Known Neighbours
+     */
+    bool m_useICM;
 
 
     /**
@@ -260,6 +285,10 @@ private:
      * \see class CallBackTraceSource
      */
     TracedCallback<Ptr<const Packet>> m_phyRxDropTrace;
+
+
+    TracedCallback<Ptr<const Packet>> m_phyRxTrace;
+    TracedCallback<Ptr<const Packet>, const Address&> m_phyTxTrace;
 
 
 

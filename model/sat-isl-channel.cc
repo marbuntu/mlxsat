@@ -13,7 +13,7 @@
 
 #include "sat-isl-channel.h"
 #include "sat-isl-net-device.h"
-
+#include "sat-isl-pck-tag.h"
 #include "ns3/double.h"
 #include "ns3/boolean.h"
 #include "ns3/simulator.h"
@@ -29,7 +29,7 @@ namespace ns3
 
     SatelliteISLChannel::SatelliteISLChannel()
     : m_bandwidth(0.0)
-    , m_compensateDoppler(true)
+    // , m_compensateDoppler(true)
     , m_propDelay()
     , m_propLoss()
     {
@@ -54,23 +54,24 @@ namespace ns3
                 , MakeDoubleAccessor(&SatelliteISLChannel::m_bandwidth)
                 , MakeDoubleChecker<double>(0.0)
             )
+            // .AddAttribute(
+            //     "DopplerShift"
+            //     , "Center-Frequency at the Receiver the Doppler-Shift"
+            //     , BooleanValue(true)
+            //     , MakeBooleanAccessor(&SatelliteISLChannel::m_compensateDoppler)
+            //     , MakeBooleanChecker()
+            // )
             .AddAttribute(
-                "DopplerCompensated"
-                , "Adjust Center-Frequency at the transmitter to mitigate the Doppler-Shift"
-                , BooleanValue(true)
-                , MakeBooleanAccessor(&SatelliteISLChannel::m_compensateDoppler)
-                , MakeBooleanChecker()
+                "NoiseTemperature"
+                , "Equivalent Noise Temperature in Kelvin"
+                , DoubleValue(1000.0)
+                , MakeDoubleAccessor(&SatelliteISLChannel::SetNoiseTemperature, &SatelliteISLChannel::GetNoiseTemperature)
+                , MakeDoubleChecker<double>(1.0)
             )
         ;
 
         return tid;
     }
-
-
-    // void SatelliteISLChannel::Send(Ptr<SatelliteISLSignal> signal)
-    // {
-    //     NS_LOG_FUNCTION(this << signal);
-    // }
 
 
     void SatelliteISLChannel::Send(Ptr<Packet> pck, uint16_t protocol, Mac48Address dst, Mac48Address src, Ptr<NetDevice> sender)
@@ -80,46 +81,55 @@ namespace ns3
          * 
          */
 
-        NS_LOG_FUNCTION(this << pck << protocol << dst << src << sender);
+        NS_LOG_FUNCTION(this << "\t" << pck << "\t" << protocol << "\t" << dst << "\t" << src << "\t" << sender);
 
 
-        uint64_t rx_mac;
-        dst.CopyTo((uint8_t*) &rx_mac);
-
-
-        if (auto rxd = m_devices.find(rx_mac); rxd != m_devices.end())
+        ISLPacketTag tag;
+        if (!pck->PeekPacketTag(tag))
         {
-            NS_LOG_FUNCTION(this << rxd->first << rxd->second->GetAddress());
+            NS_LOG_FUNCTION(this << "Critical Error - No Pck Tag assigned!");
+            return;
+        }
+
+        Ptr<NetDevice> other = nullptr;
+        if (dst.IsBroadcast())
+        {
+            other = GetDevice(tag.GetSilentDst());
         }
         else
         {
-            NS_LOG_ERROR("Receiver Device not attached to this Channel!");
+            other = GetDevice(dst);
+        }
+
+        if (other == nullptr)
+        {
+            NS_LOG_ERROR("Error - Device not connected to the Channel!");
             return;
         }
 
 
-        if (m_compensateDoppler)
+        if (m_propDelay == nullptr) 
         {
-            
+            NS_LOG_ERROR("Critical Error - No Delay model aggregated to Channel!");
+            return;
         }
 
+        Ptr<MobilityModel> tx_mob = sender->GetNode()->GetObject<MobilityModel>();
+        Ptr<MobilityModel> rx_mob = other->GetNode()->GetObject<MobilityModel>();
+        Time delay = m_propDelay->GetDelay(tx_mob, rx_mob);
 
-        for (const auto& [key, dev ] : m_devices)
-        {
-            if (dev == sender) continue;
+        Ptr<SatelliteISLNetDevice> dev = StaticCast<SatelliteISLNetDevice>(other);
 
-            Simulator::ScheduleWithContext(
-                dev->GetNode()->GetId(),
-                Time("100ms"),
-                &SatelliteISLNetDevice::Receive,
-                dev,
-                pck->Copy(),
-                protocol,
-                dst,
-                src
-            );
-            // dev->Receive(pck, protocol, dst, scr);
-        }
+        Simulator::ScheduleWithContext(
+            dev->GetNode()->GetId(),
+            delay,
+            &SatelliteISLNetDevice::Receive,
+            dev,
+            pck->Copy(),
+            protocol,
+            dst,
+            src
+        );
     }
 
 
@@ -165,12 +175,35 @@ namespace ns3
 
     std::size_t SatelliteISLChannel::GetNDevices() const
     {
-        return 0;
+        return m_devices.size();
+    }
+
+
+    std::unordered_map<uint64_t, Ptr<SatelliteISLNetDevice>>::iterator SatelliteISLChannel::GetDevicesBegin()
+    {
+        return m_devices.begin();
+    }
+
+
+    std::unordered_map<uint64_t, Ptr<SatelliteISLNetDevice>>::iterator SatelliteISLChannel::GetDevicesEnd()
+    {
+        return m_devices.end();
     }
 
 
     Ptr<NetDevice> SatelliteISLChannel::GetDevice(std::size_t i) const
-    {
+    {   
+        if (i >= m_devices.size()) return nullptr;
+
+        auto it = m_devices.begin();
+        size_t n = 0;
+        while(it != m_devices.end())
+        {
+            if (n == i) return it->second;
+            it++;
+            n++;
+        }
+
         return nullptr;
     }
 
@@ -185,6 +218,27 @@ namespace ns3
         }
 
         return nullptr;
+    }
+
+
+    double SatelliteISLChannel::EstimateGain(const Ptr<MobilityModel> tx_mob, const Ptr<MobilityModel> rx_mob, double fc) const
+    {
+        //m_propLoss->f
+
+        return m_propLoss->CalcRxPower(0, tx_mob, rx_mob);
+    }
+
+
+    void SatelliteISLChannel::SetNoiseTemperature(const double temp)
+    {
+        if (temp <= 0.0) return;
+        m_noiseTemp = temp;
+    }
+
+
+    double SatelliteISLChannel::GetNoiseTemperature() const
+    {
+        return m_noiseTemp;
     }
 
 
@@ -204,7 +258,6 @@ namespace ns3
     }
 
 
-    
 
 
 }   /* namespace ns-3   */

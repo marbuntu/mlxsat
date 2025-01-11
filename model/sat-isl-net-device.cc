@@ -62,10 +62,44 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
                 MakeDoubleAccessor(&SatelliteISLNetDevice::m_atpDelay),
                 MakeDoubleChecker<double>(0.0)
             )
+            .AddAttribute(
+                "MTU",
+                "MTU Length in Bytes",
+                IntegerValue(4000),
+                MakeIntegerAccessor(&SatelliteISLNetDevice::SetMtu, &SatelliteISLNetDevice::GetMtu),
+                MakeIntegerChecker<uint16_t>(1500)
+            )
+            .AddAttribute(
+                "MinDR",
+                "Data Rate the Link must achieve to be evaluated as up!",
+                DataRateValue(10e3),
+                MakeDataRateAccessor(&SatelliteISLNetDevice::SetMinDR, &SatelliteISLNetDevice::GetMinDR),
+                MakeDataRateChecker()
+            )
+            .AddAttribute(
+                "RxSensitivityDbm",
+                "Receiver Sensitivity in Dbm",
+                DoubleValue(130.0),
+                MakeDoubleAccessor(&SatelliteISLNetDevice::SetRxSensitivity, &SatelliteISLNetDevice::GetRxSensitivity),
+                MakeDoubleChecker<double>(0.0)
+            )
+            .AddAttribute(
+                "GlobalICM",
+                "Use Global Interconnect Matrix (ICM) for Known Neighbours",
+                BooleanValue(false),
+                MakeBooleanAccessor(&SatelliteISLNetDevice::m_useICM),
+                MakeBooleanChecker()
+            )
             .AddTraceSource(
                 "PhyRxDrop",
                 "Trace Source to indicate Packet Loss at the Device",
                 MakeTraceSourceAccessor(&SatelliteISLNetDevice::m_phyRxDropTrace),
+                "ns3::Packet::TracedCallback"
+            )
+            .AddTraceSource(
+                "PhyRxPck",
+                "Trace Source to indicate Packet Reception at the Device",
+                MakeTraceSourceAccessor(&SatelliteISLNetDevice::m_phyRxTrace),
                 "ns3::Packet::TracedCallback"
             )
         ;
@@ -79,16 +113,16 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
     : m_channel(nullptr)
     , m_node(nullptr)
     , m_recErrModel(nullptr)
+    , m_pointToPointMode(false)
     {
         NS_LOG_FUNCTION(this);
         m_refLVLH = CreateObject<LVLHReference>();
     }
 
 
-
     void SatelliteISLNetDevice::Receive(Ptr<Packet> packet, uint16_t protocol, Mac48Address dst, Mac48Address src)
     {
-        NS_LOG_FUNCTION(this << packet << protocol << dst << src);
+        //NS_LOG_FUNCTION(this << "\t" << packet << "\t" << protocol << "\t" << dst << "\t" << src);
         NetDevice::PacketType pckType;
 
         if (m_recErrModel && m_recErrModel->IsCorrupt(packet))
@@ -97,13 +131,21 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
             return;
         }
 
+        // Rx Trace Callback
+        m_phyRxTrace(packet);
+
+
+        ISLPacketTag tag;
+        packet->RemovePacketTag(tag);
+        
+
         if (dst == m_address)
         {
             pckType = NetDevice::PACKET_HOST;
         }
         else if (dst.IsBroadcast())
         {
-            pckType = NetDevice::PACKET_BROADCAST;
+            pckType = NetDevice::PACKET_HOST;
         }
         else if (dst.IsGroup())
         {
@@ -116,12 +158,13 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
 
         if (pckType != NetDevice::PACKET_OTHERHOST)
         {
+            NS_LOG_FUNCTION(this << "dst" << dst << "src" << src);
             m_rxCallback(this, packet, protocol, src);
-        }
 
-        if (!m_promiscCallback.IsNull())
-        {
-            m_promiscCallback(this, packet, protocol, src, dst, pckType);
+            if (!m_promiscCallback.IsNull())
+            {
+                m_promiscCallback(this, packet, protocol, src, dst, pckType);
+            }
         }
     }
 
@@ -187,7 +230,6 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
 
     Address SatelliteISLNetDevice::GetAddress() const
     {
-        NS_LOG_FUNCTION(this);
         return m_address;
     }
 
@@ -305,30 +347,67 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
         Mac48Address mac_src = Mac48Address::ConvertFrom(src);
         Ptr<NetDevice> dev_dst = m_channel->GetDevice(mac_dst);
 
-        if (dev_dst == nullptr)
+
+        if ((!mac_dst.IsBroadcast()) && (dev_dst == nullptr))
         {
             NS_LOG_FUNCTION(this << "Destination Node is not attached to this Channel!");
             return false;
         } 
 
-        ISLPacketTag tag;
-        tag.SetSrc(mac_src);
-        tag.SetDst(mac_dst);
-        tag.SetProto(protocolNumber);
 
-        pck->AddPacketTag(tag);
-
-
-        if (m_queue->Enqueue(pck))
+        if (mac_dst.IsBroadcast())
         {
-            if (m_queue->GetNPackets() >= 1 && !m_finishTransmissionEvent.IsRunning())
-            {
-                StartTransmission();
-            }
-            return true;
+            EnqueueBroadcast(pck, mac_src, mac_dst, protocolNumber);
+        }
+        else 
+        {
+            EnqueuePacket(pck, mac_src, mac_dst, protocolNumber);
+        }
+        
+
+        if (m_queue->GetNPackets() >= 1 && !m_finishTransmissionEvent.IsRunning())
+        {
+            StartTransmission();
         }
 
+
         return false;
+    }
+
+
+    bool SatelliteISLNetDevice::EnqueueBroadcast(Ptr<Packet> pck, Mac48Address src, Mac48Address dst, uint16_t proto)
+    {
+        for(auto it = m_channel->GetDevicesBegin(); it != m_channel->GetDevicesEnd(); it++)
+        {
+            Ptr<NetDevice> other = it->second;
+            if (other == this) continue;
+
+            ISLPacketTag tag;
+            tag.SetSrc(src);
+            tag.SetDst(dst);
+            tag.SetProto(proto);
+            tag.SetSilentDst(Mac48Address::ConvertFrom(other->GetAddress()));
+
+            Ptr<Packet> cpy = pck->Copy();
+            cpy->AddPacketTag(tag);
+
+            m_queue->Enqueue(cpy);
+        }
+        return true;
+    }
+
+
+    bool SatelliteISLNetDevice::EnqueuePacket(Ptr<Packet> pck, Mac48Address src, Mac48Address dst, uint16_t proto)
+    {
+        ISLPacketTag tag;
+        tag.SetSrc(src);
+        tag.SetDst(dst);
+        tag.SetProto(proto);
+        pck->AddPacketTag(tag);
+
+        NS_LOG_FUNCTION(this << src << dst);
+
+        return m_queue->Enqueue(pck);
     }
 
 
@@ -353,32 +432,63 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
             return;
         }
 
+        Time block_time = Time(0);
 
         // Get Other MobilityModel
-        Ptr<NetDevice> other = m_channel->GetDevice(tag.GetDst());
+        Ptr<NetDevice> other = nullptr;
 
+        NS_LOG_FUNCTION(this << tag.GetDst() << tag.GetSilentDst());
+
+        if (tag.GetDst().IsBroadcast())
+        {
+            other = m_channel->GetDevice(tag.GetSilentDst());
+        }
+        else
+        {
+            other = m_channel->GetDevice(tag.GetDst());
+        }
+
+        if (other == nullptr)
+        {
+            NS_LOG_FUNCTION(this << "Critical Error - Target Device not found!");
+            Simulator::Schedule(MilliSeconds(100), &SatelliteISLNetDevice::StartTransmission, this);
+            return;
+        }
         
         // Update Local Reference Frame
         Ptr<MobilityModel> mob = m_node->GetObject<MobilityModel>();
         m_refLVLH->UpdateLocalReference(mob->GetPosition(), mob->GetVelocity());
 
-
-        //m_channel->GetDevice(pck-)
-
-        // Transmitt on all registered Terminals
-
-        Time block_time = Time(0);
+        DataRate rate(0);
+        Ptr<SatelliteISLTerminal> term;
 
         for (const auto& terminal : m_terminals)
         {
-            block_time = Max(block_time, terminal->Transmit(pck, this, other, m_channel));
+            DataRate new_rate = terminal->GetRateEstimation(mob, other->GetNode()->GetObject<MobilityModel>(), m_channel->GetPropagationLossModel(), m_channel->GetNoiseTemperature());
+            if ((new_rate > 0) && (new_rate > rate))
+            {
+                term = terminal;
+                rate = new_rate;
+            } 
+                
         }
 
+        if ((rate < m_minDR) || (term == nullptr))
+        {
+            NS_LOG_FUNCTION(this << "Critical Error - Target Device not reachable!");
+            Simulator::Schedule(MilliSeconds(1), &SatelliteISLNetDevice::StartTransmission, this);
+            return;
+        }
+
+
+        block_time = term->Transmit(pck, this, other, m_channel);
+
+        // }
 
         //DataRate rate = DataRate("1Mb/s");
         //Time txTime = rate.CalculateBytesTxTime(pck->GetSize());
 
-        NS_LOG_FUNCTION(this << "block: " << block_time.GetMilliSeconds());
+        //NS_LOG_UNCOND(this << "  block: " << block_time.GetMicroSeconds());
 
         m_finishTransmissionEvent = Simulator::Schedule(block_time, &SatelliteISLNetDevice::FinishTransmission, this, pck);
     }
@@ -387,23 +497,12 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
     void SatelliteISLNetDevice::FinishTransmission(Ptr<Packet> pck)
     {
         NS_LOG_FUNCTION(this);
-
-        // ISLPacketTag tag;
-        // pck->RemovePacketTag(tag);
-
-        // Mac48Address src = tag.GetSrc();
-        // Mac48Address dst = tag.GetDst();
-        // uint16_t proto = tag.GetProto();
-
-        // m_channel->Send(pck, proto, dst, src, this);
-
         StartTransmission();
     }
 
 
     Ptr<Node> SatelliteISLNetDevice::GetNode() const
     {
-        NS_LOG_FUNCTION(this);
         return m_node;
     }
 
@@ -417,7 +516,7 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
 
     bool SatelliteISLNetDevice::NeedsArp() const
     {
-        NS_LOG_FUNCTION(this);
+        NS_LOG_FUNCTION(this << (m_pointToPointMode ? "PPP Mode" : "Routed Mode"));
         if (m_pointToPointMode)
         {
             return false;
@@ -501,6 +600,37 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
     Ptr<LVLHReference> SatelliteISLNetDevice::GetLocalReference() const
     {
         return m_refLVLH;
+    }
+
+
+    void SatelliteISLNetDevice::SetMinDR(DataRate minDR)
+    {
+        m_minDR = minDR;
+    }
+
+
+    DataRate SatelliteISLNetDevice::GetMinDR() const
+    {
+        return m_minDR;
+    }
+
+
+    void SatelliteISLNetDevice::SetRxSensitivity(const double rxsens_dbm)
+    {
+        if (rxsens_dbm < 0.0) return;
+        m_rxsensdbm = rxsens_dbm;
+    }
+
+
+    double SatelliteISLNetDevice::GetRxSensitivity() const
+    {
+        return m_rxsensdbm;
+    }
+
+
+    size_t SatelliteISLNetDevice::GetNTerminals() const
+    {
+        return m_terminals.size();
     }
 
 
