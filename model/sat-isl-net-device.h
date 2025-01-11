@@ -147,6 +147,9 @@ public:
     void SetMinDR(DataRate minDR);
     DataRate GetMinDR() const;
 
+    void SetRxSensitivity(const double rxsens_dbm);
+    double GetRxSensitivity() const;
+
 
     // inherited from NetDevice base class.
     void SetIfIndex(const uint32_t index) override;
@@ -263,6 +266,9 @@ private:
 
 
     DataRate m_minDR;
+
+    double m_rxsensdbm;
+
     
     /**
      * @brief Use Global Interconnect Matrix for Known Neighbours

@@ -77,6 +77,13 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
                 MakeDataRateChecker()
             )
             .AddAttribute(
+                "RxSensitivityDbm",
+                "Receiver Sensitivity in Dbm",
+                DoubleValue(130.0),
+                MakeDoubleAccessor(&SatelliteISLNetDevice::SetRxSensitivity, &SatelliteISLNetDevice::GetRxSensitivity),
+                MakeDoubleChecker<double>(0.0)
+            )
+            .AddAttribute(
                 "GlobalICM",
                 "Use Global Interconnect Matrix (ICM) for Known Neighbours",
                 BooleanValue(false),
@@ -490,16 +497,6 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
     void SatelliteISLNetDevice::FinishTransmission(Ptr<Packet> pck)
     {
         NS_LOG_FUNCTION(this);
-
-        // ISLPacketTag tag;
-        // pck->RemovePacketTag(tag);
-
-        // Mac48Address src = tag.GetSrc();
-        // Mac48Address dst = tag.GetDst();
-        // uint16_t proto = tag.GetProto();
-
-        // m_channel->Send(pck, proto, dst, src, this);
-
         StartTransmission();
     }
 
@@ -615,6 +612,19 @@ NS_LOG_COMPONENT_DEFINE("SatelliteISLNetDevice");
     DataRate SatelliteISLNetDevice::GetMinDR() const
     {
         return m_minDR;
+    }
+
+
+    void SatelliteISLNetDevice::SetRxSensitivity(const double rxsens_dbm)
+    {
+        if (rxsens_dbm < 0.0) return;
+        m_rxsensdbm = rxsens_dbm;
+    }
+
+
+    double SatelliteISLNetDevice::GetRxSensitivity() const
+    {
+        return m_rxsensdbm;
     }
 
 
