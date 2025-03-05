@@ -51,9 +51,12 @@ public:
     SatelliteISLNetDevice();
 
 
-        /**
-     * Receive a packet from a connected SimpleChannel.  The
-     * SimpleNetDevice receives packets from its connected channel
+
+    //void ReceiveSignal(Ptr<SatelliteISLSignal> signal, Mac48Address to, Mac48Address from);
+
+    /**
+     * Receive a packet from a connected ISL Channel. The
+     * receives packets from its connected channel
      * and then forwards them by calling its rx callback method
      *
      * \param packet Packet received on the channel

@@ -16,6 +16,7 @@
 #include "ns3/sat-isl-antenna.h"
 #include "ns3/sat-isl-terminal.h"
 #include "ns3/sat-isl-net-device.h"
+#include "ns3/isotropic-antenna-model.h"
 
 
 namespace ns3
@@ -92,6 +93,9 @@ namespace ns3
         {
         case ASYMMETRIC_2x2:
             return _Asymmetric2x2();
+
+        case ISOTROPIC:
+            return _Isotropic();
         
         case SYMMETRIC_4x:
         default:
@@ -198,5 +202,20 @@ namespace ns3
         return itf_helper;
     }
 
+
+    SatelliteISLInterfaceHelper DefaultISLInterfaceSetup::_Isotropic()
+    {
+        SatelliteISLInterfaceHelper itf_helper;
+
+        itf_helper.AddTerminal(
+            "Phi", DoubleValue(0.0),
+            "Theta", DoubleValue(0.0),
+            "Psi", DoubleValue(0.0)
+            )->SetAntennaModel<IsotropicAntennaModel>(
+                "Gain", DoubleValue(30.0)
+            );
+
+        return itf_helper;
+    }
 
 }   /* namespace ns3 */

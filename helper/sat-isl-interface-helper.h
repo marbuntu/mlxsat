@@ -99,7 +99,8 @@ namespace ns3
     public:
         typedef enum {
             SYMMETRIC_4x = 0,
-            ASYMMETRIC_2x2 = 1
+            ASYMMETRIC_2x2 = 1,
+            ISOTROPIC = 2,
         } setup_t;
 
 
@@ -118,11 +119,18 @@ namespace ns3
         static SatelliteISLInterfaceHelper _Symmetric4x();
 
         /**
-         * @brief 2x2 Terminal Paris in N-S and E-W direction. Pairs with shared Antenna Characteristics.
+         * @brief 2x2 Terminal Pairs in N-S and E-W direction. Pairs with shared Antenna Characteristics.
          * 
          * @return SatelliteISLInterfaceHelper 
          */
         static SatelliteISLInterfaceHelper _Asymmetric2x2();
+
+        /**
+         * @brief Single Terminal with Isotropic Radiation Characteristic
+         * 
+         * @return SatelliteISLInterfaceHelper 
+         */
+        static SatelliteISLInterfaceHelper _Isotropic();
 
     };  /* DefaultISLInterfaceSetup */
 

@@ -22,7 +22,6 @@ namespace ns3
     {
         static TypeId tid = TypeId("ns3::SatelliteISLSignal")
             .SetParent<Object>()
-            .AddConstructor<SatelliteISLSignal>()
         ;
 
         return tid;
@@ -35,13 +34,23 @@ namespace ns3
     }
 
 
-    SatelliteISLSignal::SatelliteISLSignal()
+    SatelliteISLSignal::SatelliteISLSignal(Ptr<Packet> pck)
+    : AoA(0.0, 0.0)
+    , AoD(0.0, 0.0)
+    , m_pck(pck)
     {
+
     }
 
 
     SatelliteISLSignal::~SatelliteISLSignal()
     {
+    }
+
+
+    void SatelliteISLSignal::SetRateEstimate(DataRate rate)
+    {
+        m_estimate = rate;
     }
 
 

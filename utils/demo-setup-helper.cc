@@ -19,19 +19,21 @@
 namespace ns3
 {
 
+    Ptr<WalkerConstellationHelper> SatDemoSatClusterForFL::m_constellation = nullptr;
+
     void SatDemoSatClusterForFL::Initialize()
     {
 
-        Ptr<WalkerConstellationHelper> test = CreateObjectWithAttributes<WalkerConstellationHelper>(
+        m_constellation = CreateObjectWithAttributes<WalkerConstellationHelper>(
             "WalkerType", EnumValue(WalkerConstellationHelper::WALKER_DELTA),
             "Inclination", DoubleValue(60.0),
-            "SatsPerOrbit", IntegerValue(40),
+            "SatsPerOrbit", IntegerValue(8),
             "NumOfOrbits", IntegerValue(5),
             "Phasing", DoubleValue(9.0),
             "Altitude", DoubleValue(2000),
             "ConstellationID", IntegerValue(3)
         );
-        test->Initialize();
+        m_constellation->Initialize();
 
         // Ptr<WalkerConstellationHelper> delta = CreateObjectWithAttributes<WalkerConstellationHelper>(
         //     "WalkerType", EnumValue(WalkerConstellationHelper::WALKER_DELTA),
@@ -62,8 +64,17 @@ namespace ns3
     }
 
 
+    NodeContainer SatDemoSatClusterForFL::GetDefaultNodes()
+    {
+        NodeContainer nodes;
+        nodes.Add(m_constellation->getSatellite(2 * 8 + 5)->GetObject<Node>());       // Sat 0
+        nodes.Add(m_constellation->getSatellite(2 * 8 + 6)->GetObject<Node>());       // Sat 1
+        nodes.Add(m_constellation->getSatellite(1 * 8 + 5)->GetObject<Node>());       // Sat 2
+        nodes.Add(m_constellation->getSatellite(2 * 8 + 4)->GetObject<Node>());       // Sat 3
+        nodes.Add(m_constellation->getSatellite(3 * 8 + 5)->GetObject<Node>());       // Sat 4
 
-
+        return nodes;
+    }
 
 
     Ptr<WalkerConstellationHelper> SatDemoSetup::m_walker = nullptr;
