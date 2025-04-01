@@ -354,6 +354,11 @@ namespace ns3
         Mac48Address dst = tag.GetDst();
         uint16_t proto = tag.GetProto();
 
+        Ptr<SatelliteISLSignal> signal = CreateObject<SatelliteISLSignal>(pck);
+        signal->SetRateEstimate(dr);
+        
+        //sat_chn->Transfer(signal, src_dev);
+
 
         sat_chn->Send(pck, proto, dst, src, src_dev);
 

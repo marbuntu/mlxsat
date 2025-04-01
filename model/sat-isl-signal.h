@@ -16,7 +16,9 @@
 
 
 #include "ns3/object.h"
-
+#include "ns3/packet.h"
+#include "ns3/data-rate.h"
+#include "ns3/angles.h"
 
 namespace ns3
 {
@@ -44,7 +46,7 @@ public:
      * @brief Constructor of SatelliteISLSignal
      * 
      */
-    SatelliteISLSignal();
+    SatelliteISLSignal(Ptr<Packet> pck);
 
     /**
      * @brief Copy Constructor of SatelliteISLSignal
@@ -66,16 +68,27 @@ public:
 
     // void SetDstNode(const Ptr<Node> dst);
 
+    void SetRateEstimate(DataRate rate);
+    DataRate GetRateEstimate() const;
 
+    double fc;            // Center Frequency
+    double relVelocity;   // Relative Speed between nodes
+    double txPower;       // Transmit Power in dBW
 
-    double m_fc;            // Center Frequency
-    double m_relVelocity;   // Relative Speed between nodes
-    double m_txPower;       // Transmit Power in dBW
+    double NoisePwrDb;
+    double PointingError;
 
     double GetPacket();
 
 
+    Angles AoA;
+    Angles AoD;
+
+
 private:
+    Ptr<Packet> m_pck;
+
+    DataRate m_estimate;
 
     // Ptr<Node> m_dst;
     // Ptr<Node> m_src;

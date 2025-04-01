@@ -42,7 +42,7 @@ namespace ns3
     public:
         static void Initialize();
 
-
+        static NodeContainer GetDefaultNodes();
 
     protected:
 
@@ -51,6 +51,8 @@ namespace ns3
     
         std::vector<Ptr<SatSGP4MobilityModel>> m_walkerDelta;
         std::vector<Ptr<SatSGP4MobilityModel>> m_walkerStar;
+
+        static Ptr<WalkerConstellationHelper> m_constellation;
     
 
     };  /* SatDemoSatClusterForFL*/
