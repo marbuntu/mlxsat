@@ -25,6 +25,7 @@ set(source_files
     helper/sat-fl-application-helper.cc
     utils/orientation-helper.cc
     utils/demo-setup-helper.cc
+    utils/paper-setup-helper.cc
 )
 
 set(header_files
@@ -55,6 +56,7 @@ set(header_files
     helper/sat-fl-application-helper.h
     utils/orientation-helper.h
     utils/demo-setup-helper.h
+    utils/paper-setup-helper.h
 )
 
 
