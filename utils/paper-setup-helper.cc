@@ -83,19 +83,35 @@ namespace ns3
 
         for (auto setup : m_setups)
         {
+            // Generate Constellation
             setup.constellation_setup->Initialize();   
 
-            NodeContainer nodes;
-            nodes.Add(setup.constellation_setup->getSatellite(2 * 8 + 5)->GetObject<Node>());       // Sat 0
-            nodes.Add(setup.constellation_setup->getSatellite(2 * 8 + 6)->GetObject<Node>());       // Sat 1
-            nodes.Add(setup.constellation_setup->getSatellite(1 * 8 + 5)->GetObject<Node>());       // Sat 2
-            nodes.Add(setup.constellation_setup->getSatellite(2 * 8 + 4)->GetObject<Node>());       // Sat 3
-            nodes.Add(setup.constellation_setup->getSatellite(3 * 8 + 5)->GetObject<Node>());       // Sat 4
-
+            // Setup Local Network
+            NodeContainer nodes = GetDefaultNodes(setup.CID);
             setup.interface_setup.Install(nodes, setup.channel_setup);
         }
     }
 
+
+    NodeContainer GlobecomSetupHelper::GetDefaultNodes(cstid_t cid)
+    {
+        Ptr<WalkerConstellationHelper> cstl = GetConstellationSetup(cid).constellation_setup;
+        NodeContainer nodes;
+        nodes.Add(cstl->getSatellite(2 * 8 + 5)->GetObject<Node>());       // Sat 0
+        nodes.Add(cstl->getSatellite(2 * 8 + 6)->GetObject<Node>());       // Sat 1
+        nodes.Add(cstl->getSatellite(1 * 8 + 5)->GetObject<Node>());       // Sat 2
+        nodes.Add(cstl->getSatellite(2 * 8 + 4)->GetObject<Node>());       // Sat 3
+        nodes.Add(cstl->getSatellite(3 * 8 + 5)->GetObject<Node>());       // Sat 4
+
+        return nodes;
+    }
+
+
+    GlobecomSetupHelper::constellationSetup GlobecomSetupHelper::GetConstellationSetup(cstid_t cid)
+    {
+        if (cid > m_setups.size() || cid < 1) return m_setups.at(0);
+        return m_setups.at(cid - 1);
+    }
 
 
 

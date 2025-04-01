@@ -18,6 +18,7 @@
 #include <ns3/core-module.h>
 #include <ns3/walker-constellation-helper.h>
 #include <ns3/node-container.h>
+#include <ns3/sat-isl-def.h>
 #include <ns3/sat-isl-channel.h>
 #include <ns3/sat-isl-interface-helper.h>
 
@@ -52,7 +53,7 @@ namespace ns3
 
         typedef struct 
         {
-            uint8_t CID;    // Constellation ID 
+            cstid_t CID;    // Constellation ID 
             SatelliteISLInterfaceHelper interface_setup;  // Interface Setup Helper
             Ptr<WalkerConstellationHelper> constellation_setup;
             Ptr<SatelliteISLChannel> channel_setup;
@@ -65,9 +66,11 @@ namespace ns3
 
         static Ptr<WalkerConstellationHelper> GetConstellation();
 
-        static NodeContainer GetDefaultNodes(size_t cid);
+        static NodeContainer GetDefaultNodes(cstid_t cid);
 
         static Ptr<SatelliteISLChannel> GetDefaultChannel();
+
+        static constellationSetup GetConstellationSetup(cstid_t cid);
 
 
     protected:
