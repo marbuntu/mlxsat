@@ -212,7 +212,7 @@ namespace ns3
             "Theta", DoubleValue(0.0),
             "Psi", DoubleValue(0.0)
             )->SetAntennaModel<IsotropicAntennaModel>(
-                "Gain", DoubleValue(30.0)
+                "Gain", DoubleValue(32.13)
             );
 
         return itf_helper;
