@@ -31,8 +31,8 @@ namespace ns3
         typedef std::unordered_map<cstid_t, std::vector<orbid_t>>              ConstOrbitMap;
         typedef std::unordered_map<cstid_t, std::vector<orbid_t>>::iterator    ConstOrbitMapIter;
 
-        typedef std::unordered_map<orbid_t, std::vector<satid_t>>             OrbitSatMap;
-        typedef std::unordered_map<orbid_t, std::vector<satid_t>>::iterator   OrbitSatMapIter;
+        typedef std::unordered_map<orbid_t, std::vector<satid_t>>              OrbitSatMap;
+        typedef std::unordered_map<orbid_t, std::vector<satid_t>>::iterator    OrbitSatMapIter;
 
         typedef std::unordered_map<satid_t, Ptr<SatelliteNodeTag>>             SatNodeMap;
         typedef std::unordered_map<satid_t, Ptr<SatelliteNodeTag>>::iterator   SatNodeMapIter;
@@ -68,6 +68,10 @@ namespace ns3
          * @return uint16_t 
          */
         static uint16_t GetSatsN();
+
+        static uint16_t GetSatsN(const uint8_t constellationID);
+
+        static uint16_t GetSatsN(const uint8_t constellationID, const uint16_t orbitID);
 
         /**
          * @brief Get Number of Registered Satellites by Orbit
